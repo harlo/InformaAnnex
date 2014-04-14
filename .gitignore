@@ -3,3 +3,9 @@
 
 conf/
 !conf/*.settings.yaml
+
+lib/jpeg/*.out
+lib/jpeg/*.jar
+
+test.sh
+test.py

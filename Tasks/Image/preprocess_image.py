@@ -22,7 +22,7 @@ def preprocessImage(task):
 	import os
 	from conf import getConfig, ANNEX_DIR
 	try:
-		J3M_DIR = os.path.join(getConfig('jpeg_tools_dir'), "jpeg-reaction", "lib")			
+		J3M_DIR = getConfig('jpeg_tools_dir')
 	except Exception as e:
 		if DEBUG: print "NO J3M DIR! %s" % e
 		print "\n\n************** IMAGE PREPROCESSING [ERROR] ******************\n"
