@@ -1,0 +1,31 @@
+{
+	"UV_DOC_TYPE" : {
+		"IMAGE" : "IC_IMAGE", 
+		"VIDEO" : "IC_VIDEO", 
+		"J3M": "IC_J3M"
+	},
+	"ASSET_TAGS" : {
+		"J3M" : "j3m"
+	},
+	"MIME_TYPES" : {
+		"zip" : "application/zip",
+		"image" : "image/jpeg",
+		"wildcard" : "application/octet-stream",
+		"pgp" : "application/pgp",
+		"gzip" : "application/x-gzip"
+	},
+	"MIME_TYPE_MAP" : {
+		"application/zip" : "zip",
+		"image/jpeg" : "jpg",
+		"application/octet-stream" : "wildcard",
+		"application/pgp" : "pgp",
+		"application/x-gzip" : "gzip"
+	},
+	"MIME_TYPE_TASKS" : {
+		"application/json" : [],
+		"image/jpeg" : [],
+		"video/x-matroska" : [],
+		"application/pgp" : [],
+		"application/x-gzip" : []
+	}
+}

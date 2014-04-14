@@ -38,5 +38,13 @@ echo "Installing other python dependencies..."
 cd $OLD_DIR
 pip install --upgrade -r requirements.txt
 
-cd lib/Annex
+cd lib/Annex/lib/Worker/Tasks
+ln -s $OLD_DIR/Tasks/* .
+ls -la
+
+cd ../Models
+ln -s $OLD_DIR/Models/* .
+ls -la
+
+cd $OLD_DIR/lib/Annex
 python unveillance_annex.py -firstuse
