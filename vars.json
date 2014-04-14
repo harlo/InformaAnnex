@@ -3,7 +3,12 @@
 		"J3M": "IC_J3M"
 	},
 	"ASSET_TAGS" : {
-		"J3M" : "j3m"
+		"J3M" : "j3m",
+		"OB_M" : "obscura_marker_output",
+		"THUMB" : "thumbnail",
+		"HIGH" : "hi_res",
+		"MED" : "medium_res",
+		"LOW" : "low_res"
 	},
 	"MIME_TYPES" : {
 		"zip" : "application/zip",
@@ -25,5 +30,63 @@
 		"video/x-matroska" : [],
 		"application/pgp" : [],
 		"application/x-gzip" : []
+	},
+	"METADATA_ASPECTS" : {
+		"Tiff" : [
+			{ 
+				"tag_position" : "0x0201",
+				"label" : "ThumbnailOffset",
+				"type" : "int",
+				"ideal" : 581
+			},
+			{
+				"tag_position" : "0x0131",
+				"label" : "Software",
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "0x0000",
+				"label" : "GPSVersion",
+				"type" : "str",
+				"ideal" : null
+			},
+			{ 
+				"tag_position" : "0x010f",
+				"label" : "Make",
+				"type" : "str",
+				"ideal" : "LGE"
+			},
+			{
+				"tag_position" : "0x0110",
+				"label" : "Model",
+				"type" : "str",
+				"ideal" : "Nexus 4"
+			},
+			{
+				"tag_position" : "0xa420",
+				"label" : "ImageUniqueID",
+				"type" : "str",
+				"ideal" : null
+			},
+			{ 
+				"tag_position" : "0xa005",
+				"label" : "Interoperability",
+				"type" : "str",
+				"ideal" : "IFD 377"
+			},
+			{
+				"tag_position" : "0x8769",
+				"label" : "ExifIFDPointer",
+				"type" : "str",
+				"ideal" : "IFD 215"
+			},
+			{
+				"tag_position" : "0x8825",
+				"label" : "GpsInfoIFDPointer",
+				"type" : "str",
+				"ideal" : "IFD 110"
+			}
+		]
 	}
 }
