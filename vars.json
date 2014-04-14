@@ -27,9 +27,8 @@
 	"MIME_TYPE_TASKS" : {
 		"application/json" : [],
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
-		"video/x-matroska" : [],
-		"application/pgp" : [],
-		"application/x-gzip" : []
+		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"],
+		"application/pgp" : ["PGP.import_key.importKey"]
 	},
 	"METADATA_ASPECTS" : {
 		"Tiff" : [

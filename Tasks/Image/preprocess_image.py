@@ -74,35 +74,33 @@ def preprocessImage(task):
 		un_b64 = b64decode(ic_j3m_txt.getvalue())
 		del ic_j3m_txt
 		
-		if un_b64 is None: break
+		if un_b64 is not None:	
+			import magic
+			from vars import MIME_TYPES, MIME_TYPE_MAP
 		
-		import magic
-		from vars import MIME_TYPES, MIME_TYPE_MAP
+			with magic.Magic() as m:
+				un_b64_mime_type = m.id_buffer(un_b64)
+				if un_b64_mime_type not in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
 		
-		with magic.Magic() as m:
-			un_b64_mime_type = m.id_buffer(un_b64)
-		
-			if un_b64_mime_type not in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]: break
-		
-			asset_path = "j3m_raw_dump.%s" % MIME_TYPE_MAP[un_b64_mime_type]
-			image.addAsset(un_b64, asset_path, tags=[ASSET_TAGS['OB_M']], 
-				description="j3m data extracted from obscura marker")
+					asset_path = "j3m_raw_dump.%s" % MIME_TYPE_MAP[un_b64_mime_type]
+					image.addAsset(un_b64, asset_path, tags=[ASSET_TAGS['OB_M']], 
+						description="j3m data extracted from obscura marker")
 
-			task_path = None			
-			if un_b64_mime_type == MIME_TYPES['pgp']:
-				task_path = "J3M.pgp_utils.decrypt"
-				was_encrypted = True
-			elif un_b64_mime_type == MIME_TYPES['gzip']:
-				task_path = "J3M.j3mify.j3mify"
+					task_path = None			
+					if un_b64_mime_type == MIME_TYPES['pgp']:
+						task_path = "PGP.request_decrypt.requestDecrypt"
+						was_encrypted = True
+					elif un_b64_mime_type == MIME_TYPES['gzip']:
+						task_path = "J3M.j3mify.j3mify"
 
-			if task_path is None: break
-			new_task = UnveillanceTask(inflate={
-				'task_path' : task_path
-				'doc_id' : image._id,
-				'queue' : task.queue,
-				'pgp_file' : asset_path
-			})
-			new_task.run()
+					if task_path is not None:
+						new_task = UnveillanceTask(inflate={
+							'task_path' : task_path,
+							'doc_id' : image._id,
+							'queue' : task.queue,
+							'pgp_file' : asset_path
+						})
+						new_task.run()
 
 	new_task = UnveillanceTask(inflate={
 		'task_path' : "Documents.compile_metadata.compileMetadata",
