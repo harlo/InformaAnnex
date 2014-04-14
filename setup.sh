@@ -14,7 +14,14 @@ else
 	UV_UUID=$4
 fi
 
-cd lib/Annex
+JPEG_TOOLS_DIR=$OLD_DIR/lib/jpeg
+cd $JPEG_TOOLS_DIR/jpeg-redaction/lib
+make
+g++ -L $JPEG_TOOLS_DIR/lib/jpeg-redaction/lib -lredact jpeg.cpp jpeg_decoder.cpp jpeg_marker.cpp debug_flag.cpp byte_swapping.cpp iptc.cpp tiff_ifd.cpp tiff_tag.cpp j3mparser.cpp -o j3mparser.out
+
+echo jpeg_tools_dir: JPEG_TOOLS_DIR >> $OLD_DIR/lib/Annex/conf/annex.config.yaml
+
+cd $OLD_DIR/lib/Annex
 ./setup.sh $OLD_DIR $ANNEX_DIR $ANACONDA_DIR
 
 echo export UV_SERVER_HOST="'"$UV_SERVER_HOST"'" >> .bashrc

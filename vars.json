@@ -1,7 +1,5 @@
 {
 	"UV_DOC_TYPE" : {
-		"IMAGE" : "IC_IMAGE", 
-		"VIDEO" : "IC_VIDEO", 
 		"J3M": "IC_J3M"
 	},
 	"ASSET_TAGS" : {
@@ -23,7 +21,7 @@
 	},
 	"MIME_TYPE_TASKS" : {
 		"application/json" : [],
-		"image/jpeg" : [],
+		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
 		"video/x-matroska" : [],
 		"application/pgp" : [],
 		"application/x-gzip" : []
