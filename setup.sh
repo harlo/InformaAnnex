@@ -16,7 +16,13 @@ else
 	GPG_DIR=$5
 fi
 
-echo gpg_homedir: $GPG_DIR >> $OLD_DIR/lib/Annex/conf/annex.config.yaml
+sudo apt-get install -y pkg-config libx264-dev
+cd lib/FFmpeg
+./configure
+make
+sudo make install
+
+sudo apt-get install -y ffmpeg2theora
 
 JPEG_TOOLS_DIR=$OLD_DIR/lib/jpeg
 cd $JPEG_TOOLS_DIR/jpeg-redaction/lib
@@ -54,7 +60,11 @@ git checkout -b master
 echo "**************************************************"
 echo "Installing other python dependencies..."
 cd $OLD_DIR
-pip install --upgrade -r requirements.txt
+#pip install --upgrade -r requirements.txt
+
+cd lib/python-gnupg
+make install
+echo gpg_homedir: $GPG_DIR >> $OLD_DIR/lib/Annex/conf/annex.config.yaml
 
 cd lib/Annex/lib/Worker/Tasks
 ln -s $OLD_DIR/Tasks/* .

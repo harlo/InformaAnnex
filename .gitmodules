@@ -7,3 +7,9 @@
 [submodule "lib/jpeg/JavaMediaHasher"]
 	path = lib/jpeg/JavaMediaHasher
 	url = git@github.com:n8fr8/JavaMediaHasher.git
+[submodule "lib/FFmpeg"]
+	path = lib/FFmpeg
+	url = git@github.com:FFmpeg/FFmpeg.git
+[submodule "lib/python-gnupg"]
+	path = lib/python-gnupg
+	url = git@github.com:isislovecruft/python-gnupg.git
