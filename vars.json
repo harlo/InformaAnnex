@@ -8,27 +8,29 @@
 		"THUMB" : "thumbnail",
 		"HIGH" : "hi_res",
 		"MED" : "medium_res",
-		"LOW" : "low_res"
+		"LOW" : "low_res",
+		"SIG" : "j3m_signature",
+		"M_DERIV" : "media_derivative"
 	},
 	"MIME_TYPES" : {
 		"zip" : "application/zip",
 		"image" : "image/jpeg",
 		"wildcard" : "application/octet-stream",
 		"pgp" : "application/pgp",
-		"gzip" : "application/x-gzip"
+		"gzip" : "application/x-gzip",
+		"json" : "application/json"
 	},
 	"MIME_TYPE_MAP" : {
 		"application/zip" : "zip",
 		"image/jpeg" : "jpg",
 		"application/octet-stream" : "wildcard",
 		"application/pgp" : "pgp",
-		"application/x-gzip" : "gzip"
+		"application/x-gzip" : "gz"
 	},
 	"MIME_TYPE_TASKS" : {
 		"application/json" : [],
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
-		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"],
-		"application/pgp" : ["PGP.import_key.importKey"]
+		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"]
 	},
 	"METADATA_ASPECTS" : {
 		"Tiff" : [
@@ -87,18 +89,6 @@
 				"ideal" : "IFD 110"
 			}
 		]
-	},
-	"QUERY_DEFAULTS" : {
-		"IC_J3M" : {
-			"bool": {
-				"must" : [
-					{"query_string" : {
-						"default_field" : "uv_document.uv_doc_type",
-						"query" : "IC_J3M" 
-					}}
-				]
-			}
-		}
 	},
 	"ELASTICSEARCH_MAPPINGS" : {}
 }

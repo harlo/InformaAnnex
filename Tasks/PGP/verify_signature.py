@@ -4,7 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def verifySignature(task):
-	print "\n\n************** VERIFYING SIG [START] ******************\n"
+	task_tag = "VERIFYING SIGNATURE"
+	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
 	task.setStatus(412)
 		
@@ -16,8 +17,49 @@ def verifySignature(task):
 	media = UnveillanceDocument(_id=task.doc_id)
 	if media is None:
 		print "DOC IS NONE"
-		print "\n\n************** VERIFYING SIG [ERROR] ******************\n"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	sig = media.getAsset("j3m.sig", return_only="path")
+	j3m = media.getAsset("j3m.json", return_only="path")
+	
+	if sig is None or j3m is None:
+		print "NO SIGNATURE or J3M"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
+	
+	import gnupg
+	from conf import getConfig
+	
+	try:
+		gpg = gnupg.GPG(homedir=getConfig('gpg_homedir'))
+	except Exception as e:
+		print "ERROR INITING GPG"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
+	
+	media.j3m_verified = False
+	verified = gpg.verify_file(j3m, sig_file=sig)
+	if DEBUG: print "verified fingerprint: %s" % verified.fingerprint
+	
+	if verified.fingerprint is not None:
+		from json import loads
+		
+		supplied_fingerprint = str(loads(
+			media.loadAsset("j3m.json"))['genealogy']['createdOnDevice'])
+		
+		if verified.fingerprint.upper() == supplied_fingerprint.upper():
+			if DEBUG: print "SIGNATURE VALID for %s" % verified.fingerprint.upper()
+			media.j3m_verified = True
+	
+	media.save()
+	
+	if not hasattr(media, "j3m_id"):
+		new_task = UnveillanceTask(inflate={
+			'task_path' : "J3M.massage_j3m.massageJ3M",
+			'doc_id' : media._id,
+			'queue' : task.queue})
+		new_task.run()
+	
 	task.finish()
-	print "\n\n************** VERIFYING SIG [END] ******************\n"
+	print "\n\n************** %s [END] ******************\n" % task_tag

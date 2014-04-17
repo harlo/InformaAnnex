@@ -4,7 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def importKey(task):
-	print "\n\n************** IMPORTING KEY [START] ******************\n"
+	task_tag = "IMPORTING KEY"
+	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
 	task.setStatus(412)
 		
@@ -16,8 +17,8 @@ def importKey(task):
 	media = UnveillanceDocument(_id=task.doc_id)
 	if media is None:
 		print "DOC IS NONE"
-		print "\n\n************** IMPORTING KEY [ERROR] ******************\n"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
 	task.finish()
-	print "\n\n************** IMPORTING KEY [END] ******************\n"
+	print "\n\n************** %s [END] ******************\n" % task_tag

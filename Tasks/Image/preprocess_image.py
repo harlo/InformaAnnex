@@ -4,7 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def preprocessImage(task):
-	print "\n\n************** IMAGE PREPROCESSING [START] ******************\n"
+	task_tag = "IMAGE PREPROCESSING"
+	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
 	task.setStatus(412)
 		
@@ -16,7 +17,7 @@ def preprocessImage(task):
 	image = InformaCamImage(_id=task.doc_id)
 	if image is None:
 		print "DOC IS NONE"
-		print "\n\n************** IMAGE PREPROCESSING [ERROR] ******************\n"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
 	import os
@@ -25,7 +26,7 @@ def preprocessImage(task):
 		J3M_DIR = getConfig('jpeg_tools_dir')
 	except Exception as e:
 		if DEBUG: print "NO J3M DIR! %s" % e
-		print "\n\n************** IMAGE PREPROCESSING [ERROR] ******************\n"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
 	import re
@@ -75,32 +76,33 @@ def preprocessImage(task):
 		del ic_j3m_txt
 		
 		if un_b64 is not None:	
-			import magic
+			from lib.Worker.Utils.funcs import getFileType
 			from vars import MIME_TYPES, MIME_TYPE_MAP
 		
-			with magic.Magic() as m:
-				un_b64_mime_type = m.id_buffer(un_b64)
-				if un_b64_mime_type not in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-		
-					asset_path = "j3m_raw_dump.%s" % MIME_TYPE_MAP[un_b64_mime_type]
-					image.addAsset(un_b64, asset_path, tags=[ASSET_TAGS['OB_M']], 
+			un_b64_mime_type = getFileType(un_b64, as_buffer=True)
+			if un_b64_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
+	
+				asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
+				image.addAsset(un_b64, asset_path)
+				
+				new_task = { 'doc_id' : image._id, 'queue' : task.queue }
+				task_path = None
+				
+				if un_b64_mime_type == MIME_TYPES['pgp']:
+					task_path = "PGP.request_decrypt.requestDecrypt"
+					new_task['pgp_file'] = asset_path
+					
+					was_encrypted = True
+					
+				elif un_b64_mime_type == MIME_TYPES['gzip']:
+					task_path = "J3M.j3mify.j3mify"
+					image.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']], 
 						description="j3m data extracted from obscura marker")
 
-					task_path = None			
-					if un_b64_mime_type == MIME_TYPES['pgp']:
-						task_path = "PGP.request_decrypt.requestDecrypt"
-						was_encrypted = True
-					elif un_b64_mime_type == MIME_TYPES['gzip']:
-						task_path = "J3M.j3mify.j3mify"
-
-					if task_path is not None:
-						new_task = UnveillanceTask(inflate={
-							'task_path' : task_path,
-							'doc_id' : image._id,
-							'queue' : task.queue,
-							'pgp_file' : asset_path
-						})
-						new_task.run()
+				if task_path is not None:
+					new_task['task_path'] = task_path					
+					new_task = UnveillanceTask(inflate=new_task)
+					new_task.run()
 
 	new_task = UnveillanceTask(inflate={
 		'task_path' : "Documents.compile_metadata.compileMetadata",
@@ -124,4 +126,4 @@ def preprocessImage(task):
 	new_task.run()
 	
 	task.finish()
-	print "\n\n************** IMAGE PREPROCESSING [START] ******************\n"
+	print "\n\n************** %s [END] ******************\n" % task_tag
