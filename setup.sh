@@ -20,6 +20,7 @@ USER_CONFIG=$OLD_DIR/lib/Annex/conf/annex.config.yaml
 
 echo gpg_homedir: $GPG_DIR >> $USER_CONFIG
 echo informacam.forms_root: $FORMS_ROOT >> $USER_CONFIG
+mkdir $FORMS_ROOT
 
 sudo apt-get install -y pkg-config libx264-dev
 cd lib/FFmpeg

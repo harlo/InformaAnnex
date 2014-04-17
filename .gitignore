@@ -7,5 +7,7 @@ conf/
 lib/jpeg/*.out
 lib/jpeg/*.jar
 
+forms/
+
 test.sh
 test.py

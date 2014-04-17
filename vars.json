@@ -28,7 +28,6 @@
 		"application/x-gzip" : "gz"
 	},
 	"MIME_TYPE_TASKS" : {
-		"application/json" : [],
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
 		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"]
 	},
