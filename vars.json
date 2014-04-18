@@ -2,6 +2,31 @@
 	"UV_DOC_TYPE" : {
 		"J3M": "IC_J3M"
 	},
+	"QUERY_DEFAULTS" : {
+		"IC_J3M" : {
+			"bool" : {
+				"must" : [
+					{
+						"query_string" : {
+							"default_field" : "ic_j3m.uv_doc_type",
+							"query" : "IC_J3M"
+						}
+					}
+				],
+				"must_not" : [
+					{
+						"constant_score" : {
+							"filter" : {
+								"missing" : {
+									"field" : "ic_j3m.media_id"
+								}
+							}
+						}
+					}
+				]
+			}
+		}
+	},
 	"ASSET_TAGS" : {
 		"J3M" : "j3m",
 		"OB_M" : "obscura_marker_output",
