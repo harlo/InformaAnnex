@@ -32,6 +32,7 @@ def preprocessImage(task):
 	import re
 	from subprocess import Popen, PIPE
 	from cStringIO import StringIO
+	from lib.Worker.Models.uv_task import UnveillanceTask
 	
 	tiff_txt = StringIO()
 	
@@ -45,34 +46,37 @@ def preprocessImage(task):
 	p = Popen(cmd, stdout=PIPE, close_fds=True)
 	data = p.stdout.readline()
 	while data:
-		if DEBUG: print data
-		write_line = False
+		data = data.strip()
 		
-		if re.match(r'^file: .*', line): pass
-		elif re.match(r'^Generic APPn ffe0 loaded.*', line): pass
-		elif re.match(r'^Component.*', line): pass
-		elif re.match(r'^Didn\'t find .*', line): pass
-		elif re.match(r'^Got obscura marker.*', line): 
+		#if DEBUG: print data
+		
+		if re.match(r'^file: .*', data): pass
+		elif re.match(r'^Generic APPn .*', data): pass
+		elif re.match(r'^Component.*', data): pass
+		elif re.match(r'^Didn\'t find .*', data): pass
+		elif re.match(r'^Got obscura marker.*', data):
+			if DEBUG: print "\n\nWE ALSO HAVE J3M DATA\n\n"
 			obscura_marker_found = True
 			ic_j3m_txt = StringIO()
 		else:
-			if obscura_marker_found: ic_j3m_txt.write(line)
-			else: tiff_txt.write(line)
+			if obscura_marker_found: ic_j3m_txt.write(data)
+			else: tiff_txt.write(data)
 				
 		data = p.stdout.readline()
 		
 	p.stdout.close()
-	tiff_txt.close()
 	
 	image.addAsset(tiff_txt.getvalue(), "file_metadata.txt",
 		description="tiff metadata as per jpeg redaction library")
+	
+	tiff_txt.close()
 	del tiff_txt
 	
-	if ic_j3m_txt is not None:
-		ic_j3m_txt.close()
-		
+	if ic_j3m_txt is not None:		
 		from lib.Core.Utils.funcs import b64decode
 		un_b64 = b64decode(ic_j3m_txt.getvalue())
+		
+		ic_j3m_txt.close()
 		del ic_j3m_txt
 		
 		if un_b64 is not None:	
@@ -103,7 +107,9 @@ def preprocessImage(task):
 					new_task['task_path'] = task_path					
 					new_task = UnveillanceTask(inflate=new_task)
 					new_task.run()
-
+	else:
+		print "but ic_j3m_txt is still None"
+	'''
 	new_task = UnveillanceTask(inflate={
 		'task_path' : "Documents.compile_metadata.compileMetadata",
 		'doc_id' : image._id,
@@ -124,6 +130,7 @@ def preprocessImage(task):
 		'queue' : task.queue
 	})
 	new_task.run()
+	'''
 	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

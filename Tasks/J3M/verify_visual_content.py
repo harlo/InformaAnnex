@@ -28,7 +28,7 @@ def verifyVisualContent(task):
 	
 	from json import loads
 	from subprocess import Popen, PIPE
-	from conf import ASSET_PATH, getConfig
+	from conf import ANNEX_DIR, getConfig
 	
 	supplied_hashes = loads(j3m)['genealogy']['hashes']
 	media.media_verified = False
@@ -36,10 +36,10 @@ def verifyVisualContent(task):
 	if media.mime_type == MIME_TYPES['image']:
 		cmd = ["java", "-jar", 
 			os.path.join(getConfig('jpeg_tools_dir'), "JavaMediaHasher.jar"),
-			os.path.join(ASSET_PATH, media.file_name)]
+			os.path.join(ANNEX_DIR, media.file_name)]
 	elif media.mime_type == MIME_TYPES['video']:
 		cmd = ["ffmpeg", "-y", "-i",
-			os.path.join(ASSET_PATH, media.file_name), "-vcodec", "copy",
+			os.path.join(ANNEX_DIR, media.file_name), "-vcodec", "copy",
 			"-an", "-f", "md5", "-"]
 		
 	p = Popen(cmd, stdout=PIPE, close_fds=True)

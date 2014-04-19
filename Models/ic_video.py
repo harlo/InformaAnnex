@@ -12,4 +12,5 @@ class InformaCamVideo(UnveillanceDocument):
 	def inflate(self, inflate):
 		super(InformaCamVideo, self).inflate(inflate)
 		
-		self.j3m = InformaCamJ3M(_id=self.j3m_id)
+		if hasattr(self, "j3m_id"):
+			self.j3m = InformaCamJ3M(_id=self.j3m_id)

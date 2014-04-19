@@ -54,7 +54,7 @@ def makeDerivatives(task):
 			description="derivative of video in %s resolution (ogv)" % label)
 		
 		if ogv_asset_path is not None:
-			p = Popen(["ffmpeg2theora", asset_path)
+			p = Popen(["ffmpeg2theora", asset_path])
 			p.wait()
 	
 	asset_path = video.addAsset(None, "thumb_%s.jpg" % video.file_name[:-4],

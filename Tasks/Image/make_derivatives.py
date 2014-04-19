@@ -20,6 +20,7 @@ def makeDerivatives(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	import os
 	from subprocess import Popen
 	from conf import ANNEX_DIR
 	
@@ -44,7 +45,8 @@ def makeDerivatives(task):
 		if res is not None:
 			cmd.extend(["-vf", "scale=iw*%.3f:ih*%.3f" % (res[0], res[1])])
 		
-		cmd.append(asset_path)
+		cmd.append(os.path.join(ANNEX_DIR, asset_path))
+		if DEBUG: print "FFMPEG CMD: %s" % cmd
 		
 		p = Popen(cmd)
 		p.wait()

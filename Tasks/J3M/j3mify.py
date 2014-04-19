@@ -28,13 +28,18 @@ def j3mify(task):
 	
 	from cStringIO import StringIO
 	from lib.Worker.Utils.funcs import getFileType, unGzipBinary
+	from vars import MIME_TYPES
 	
 	j3m = unGzipBinary(j3m_gz)
+	if DEBUG: print j3m
+	
 	if j3m is None or getFileType(j3m, as_buffer=True) != MIME_TYPES['json']:
 		print "THIS IS NOT A J3M"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
-	
+
+	import json
+
 	try:
 		j3m_sig = json.loads(j3m)['signature']
 	except KeyError as e:
@@ -42,14 +47,14 @@ def j3mify(task):
 		print "\n\n************** J3MIFYING [ERROR] ******************\n"
 		return
 	
-	media.addAsset("j3m.sig", j3m_sig, tags=[ASSET_TAGS['SIG']],
+	media.addAsset(j3m_sig, "j3m.sig", tags=[ASSET_TAGS['SIG']],
 		description="The j3m's signature")
 	
 	front_sentinel = "{\"j3m\":"
 	back_sentinel = ",\"signature\":"
 	
 	j3m = j3m[len(front_sentinel) : j3m.index(back_sentinel)]
-	media.addAsset("j3m.json", j3m, tags=[ASSET_TAGS['J3M']],
+	media.addAsset(j3m, "j3m.json", tags=[ASSET_TAGS['J3M']],
 		description="The j3m itself.")
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
