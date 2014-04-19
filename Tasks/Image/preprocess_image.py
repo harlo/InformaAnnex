@@ -108,8 +108,7 @@ def preprocessImage(task):
 					new_task['task_path'] = task_path					
 					new_task = UnveillanceTask(inflate=new_task)
 					new_task.run()
-
-	'''				
+		
 				from time import sleep
 				sleep(10)
 
@@ -126,14 +125,13 @@ def preprocessImage(task):
 		'md_file' : "file_metadata.txt"
 	})
 	new_task.run()
-	
+
 	new_task = UnveillanceTask(inflate={
 		'task_path' : "Image.make_derivatives.makeDerivatives",
 		'doc_id' : image._id,
 		'queue' : task.queue
 	})
 	new_task.run()
-	'''
-	
+
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
