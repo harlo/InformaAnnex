@@ -31,7 +31,6 @@ def j3mify(task):
 	from vars import MIME_TYPES
 	
 	j3m = unGzipBinary(j3m_gz)
-	if DEBUG: print j3m
 	
 	if j3m is None or getFileType(j3m, as_buffer=True) != MIME_TYPES['json']:
 		print "THIS IS NOT A J3M"
@@ -53,21 +52,17 @@ def j3mify(task):
 	front_sentinel = "{\"j3m\":"
 	back_sentinel = ",\"signature\":"
 	
-	j3m = j3m[len(front_sentinel) : j3m.index(back_sentinel)]
+	j3m = j3m[len(front_sentinel) : j3m.rindex(back_sentinel)]
 	media.addAsset(j3m, "j3m.json", tags=[ASSET_TAGS['J3M']],
 		description="The j3m itself.")
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
-	task_paths = ["PGP.verify_signature.verifySignature",
-		"J3M.verify_visual_content.verifyVisualContent"]
-
-	for task_path in task_paths:
-		next_task = UnveillanceTask(inflate={
-			'task_path' : task_path,
-			'doc_id' : media._id,
-			'queue' : task.queue
-		})
-		next_task.run()
+	next_task = UnveillanceTask(inflate={
+		'task_path' : "PGP.verify_signature.verifySignature",
+		'doc_id' : media._id,
+		'queue' : task.queue
+	})
+	next_task.run()
 	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

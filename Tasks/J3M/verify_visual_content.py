@@ -26,9 +26,11 @@ def verifyVisualContent(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	import os
 	from json import loads
 	from subprocess import Popen, PIPE
 	from conf import ANNEX_DIR, getConfig
+	from vars import MIME_TYPES
 	
 	supplied_hashes = loads(j3m)['genealogy']['hashes']
 	media.media_verified = False

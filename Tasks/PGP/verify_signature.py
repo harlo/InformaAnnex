@@ -23,6 +23,8 @@ def verifySignature(task):
 	sig = media.getAsset("j3m.sig", return_only="path")
 	j3m = media.getAsset("j3m.json", return_only="path")
 	
+	if DEBUG: print "j3m path: %s, sig path: %s" % (j3m, sig)
+	
 	if sig is None or j3m is None:
 		print "NO SIGNATURE or J3M"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
@@ -54,7 +56,15 @@ def verifySignature(task):
 	
 	media.save()
 	
+	task_path = None
+	
 	if not hasattr(media, "j3m_id"):
+		task_path = "J3M.massage_j3m.massageJ3M"
+	else:
+		task_path = "J3M.verify_visual_content.verifyVisualContent"
+	
+	if task_path is not None:
+		from lib.Worker.Models.uv_task import UnveillanceTask
 		new_task = UnveillanceTask(inflate={
 			'task_path' : "J3M.massage_j3m.massageJ3M",
 			'doc_id' : media._id,

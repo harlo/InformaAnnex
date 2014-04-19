@@ -1,7 +1,4 @@
 {
-	"UV_DOC_TYPE" : {
-		"J3M": "IC_J3M"
-	},
 	"QUERY_DEFAULTS" : {
 		"IC_J3M" : {
 			"bool" : {
@@ -43,14 +40,16 @@
 		"wildcard" : "application/octet-stream",
 		"pgp" : "application/pgp",
 		"gzip" : "application/x-gzip",
-		"json" : "application/json"
+		"json" : "application/json",
+		"j3m" : "informacam/j3m"
 	},
 	"MIME_TYPE_MAP" : {
 		"application/zip" : "zip",
 		"image/jpeg" : "jpg",
 		"application/octet-stream" : "wildcard",
 		"application/pgp" : "pgp",
-		"application/x-gzip" : "gz"
+		"application/x-gzip" : "gz",
+		"informacam/j3m" : "json"
 	},
 	"MIME_TYPE_TASKS" : {
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],

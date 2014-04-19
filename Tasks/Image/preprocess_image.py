@@ -85,7 +85,8 @@ def preprocessImage(task):
 		
 			un_b64_mime_type = getFileType(un_b64, as_buffer=True)
 			if un_b64_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-	
+				if DEBUG: print "MIME TYPE: %s" % un_b64_mime_type
+				
 				asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
 				image.addAsset(un_b64, asset_path)
 				
@@ -107,9 +108,11 @@ def preprocessImage(task):
 					new_task['task_path'] = task_path					
 					new_task = UnveillanceTask(inflate=new_task)
 					new_task.run()
-	else:
-		print "but ic_j3m_txt is still None"
-	'''
+
+	'''				
+				from time import sleep
+				sleep(10)
+
 	new_task = UnveillanceTask(inflate={
 		'task_path' : "Documents.compile_metadata.compileMetadata",
 		'doc_id' : image._id,

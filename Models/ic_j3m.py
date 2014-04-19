@@ -7,17 +7,14 @@ class InformaCamJ3M(UnveillanceObject):
 		if inflate is not None:
 			from lib.Core.Utils.funcs import generateMD5Hash
 			from conf import UUID
-			from vars import UV_DOC_TYPE
+			from vars import UV_DOC_TYPE, MIME_TYPES
 			
-			inflate['_id'] = generateMD5Hash()
+			inflate['_id'] = generateMD5Hash(content=inflate['media_id'],
+				salt=MIME_TYPES['j3m'])
+
 			inflate['farm'] = UUID
-			inflate['uv_doc_type'] = UV_DOC_TYPE['J3M']
+			inflate['uv_doc_type'] = UV_DOC_TYPE['DOC']
+			inflate['mime_type'] = MIME_TYPES['j3m']
 			
 		super(InformaCamJ3M, self).__init__(_id=_id, inflate=inflate)
-	
-	def sendELSRequest(self, data=None, to_root=False, endpoint=None, method="get"):
-		j3m_endpoint = "ic_j3m/"
-		if endpoint is not None: j3m_endpoint += endpoint
-		
-		return super(InformaCamJ3M, self).sendELSRequest(data=data, 
-			to_root=True, endpoint=j3m_endpoint, method=method)
+		print self.emit()

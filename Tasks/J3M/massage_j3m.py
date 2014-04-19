@@ -47,7 +47,7 @@ def massageJ3M(task):
 	
 	try:
 		location = j3m['data']['exif']['location']
-		j3m['data']['exif']['location'] = [loc[1], loc[0]]
+		j3m['data']['exif']['location'] = [location[1], location[0]]
 	except KeyError as e:
 		if DEBUG: print "no key %s" % e
 		pass
@@ -79,7 +79,7 @@ def massageJ3M(task):
 	import os
 	from conf import getConfig
 	from lib.Core.Utils.funcs import b64decode
-	from lib.Worker.Utils.funcs import getFileType, unGzipStream
+	from lib.Worker.Utils.funcs import getFileType, unGzipBinary
 
 	try:
 		with open(os.path.join(getConfig('forms_root'), "forms.json"), 'rb') as F:		
@@ -122,7 +122,7 @@ def massageJ3M(task):
 										audio_f = "audio_%d.3gp" % idx
 										idx += 1
 										
-										media.addAsset(unGzipStream(audio_data), audio_f,
+										media.addAsset(unGzipBinary(audio_data), audio_f,
 											tags=[ASSET_TAGS['A_3GP']],
 											description="3gp audio file from form")
 										
@@ -145,15 +145,26 @@ def massageJ3M(task):
 	except KeyError as e:
 		if DEBUG: print "no key %s" % e
 		pass
+	except IOError as e:
+		if DEBUG: print "no forms to go over: %s" % e
 										
 	if media.addAsset(j3m, "j3m.json", as_literal=False) is not False:
 		from lib.Worker.Models.ic_j3m import InformaCamJ3M
+		from lib.Worker.Models.uv_task import UnveillanceTask
 		
 		j3m['media_id'] = media._id
 		j3m = InformaCamJ3M(inflate=j3m)
 		
 		media.j3m_id = j3m._id
+		print "NEW J3M ID TO SAVE: %s " % media.j3m_id
 		media.save()
+		
+		new_task = UnveillanceTask(inflate={
+			'task_path' : "J3M.verify_visual_content.verifyVisualContent",
+			'doc_id' : media._id,
+			'queue' : task.queue
+		})
+		new_task.run()
 	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
