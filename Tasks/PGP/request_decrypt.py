@@ -22,5 +22,7 @@ def requestDecrypt(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	task.update_file = "%s.decrypted" % task.pgp_file
+	task.on_update = "Documents.evaluate_file.evaluateFile"
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

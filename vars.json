@@ -52,6 +52,7 @@
 		"informacam/j3m" : "json"
 	},
 	"MIME_TYPE_TASKS" : {
+		"text/plain" : ["Media.evaluate_text.evaluateTextFile"],
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
 		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"]
 	},
