@@ -54,7 +54,8 @@
 	"MIME_TYPE_TASKS" : {
 		"text/plain" : ["Media.evaluate_text.evaluateTextFile"],
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
-		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"]
+		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"],
+		"application/zip" : ["Media.convert.unzipAndEvaluateArchive"]
 	},
 	"METADATA_ASPECTS" : {
 		"Tiff" : [
