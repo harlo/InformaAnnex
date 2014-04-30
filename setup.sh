@@ -22,7 +22,7 @@ echo gpg_homedir: $GPG_DIR >> $USER_CONFIG
 echo informacam.forms_root: $FORMS_ROOT >> $USER_CONFIG
 mkdir $FORMS_ROOT
 
-sudo apt-get install -y pkg-config libx264-dev
+sudo apt-get install -y pkg-config libx264-dev make g++ python-setuptools yasm
 cd lib/FFmpeg
 ./configure
 make
@@ -44,7 +44,13 @@ ant clean
 
 echo jpeg_tools_dir: $JPEG_TOOLS_DIR >> $USER_CONFIG
 
+echo "***********************************"
+echo "NOW ANNEX SETUP..."
+echo $OLD_DIR/lib/Annex
+
 cd $OLD_DIR/lib/Annex
+chmod +x setup.sh
+ls -la
 ./setup.sh $OLD_DIR $ANNEX_DIR $ANACONDA_DIR
 
 echo export UV_SERVER_HOST="'"$UV_SERVER_HOST"'" >> .bashrc
