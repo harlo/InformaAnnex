@@ -50,6 +50,8 @@ def makeDerivatives(task):
 		
 		p = Popen(cmd)
 		p.wait()
+		
+		image.addFile(asset_path, None, sync=True)
 	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

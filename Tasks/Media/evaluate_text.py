@@ -48,19 +48,25 @@ def evaluateTextFile(task):
 				description="un-b64'ed pgp asset")
 				
 			task_path = None
+			task_args = {}
 			message_sentinel = "-----BEGIN PGP MESSAGE-----"
 			
 			if un_b64[0:len(message_sentinel)] == message_sentinel:
-				task_path = "PGP.request_decrypt.requestDecrypt"
+				task_path = "PGP.decrypt.decrypt"
+				task_args.update({
+					'pgp_file' : ".data/%s/%s.pgp" % (media._id, media.file_name)
+				})
 			
 			if task_path is not None:
 				from lib.Worker.Models.uv_task import UnveillanceTask
-				new_task = UnveillanceTask(inflate={
+				
+				task_args.update({
 					'task_path' : task_path,
 					'doc_id' : media._id,
-					'queue' : task.queue,
-					'pgp_file' : ".data/%s/%s.pgp" % (media._id, media.file_name)
+					'queue' : task.queue
 				})
+				
+				new_task = UnveillanceTask(inflate=task_args)
 				new_task.run()
 	
 	task.finish()

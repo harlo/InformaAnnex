@@ -55,7 +55,8 @@
 		"text/plain" : ["Media.evaluate_text.evaluateTextFile"],
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
 		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"],
-		"application/zip" : ["Media.convert.unzipAndEvaluateArchive"]
+		"application/zip" : ["Media.convert.unzipAndEvaluateArchive"],
+		"application/json": ["J3M.j3mify.j3mify"]
 	},
 	"METADATA_ASPECTS" : {
 		"Tiff" : [

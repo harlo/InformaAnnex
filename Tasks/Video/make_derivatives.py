@@ -48,6 +48,7 @@ def makeDerivatives(task):
 		
 		p = Popen(cmd)
 		p.wait()
+		video.addFile(asset_path, None, sync=True)
 		
 		ogv_asset_path = video.addAsset(None, asset_path.replace(".mp4", ".ogv"),
 			tags=[ASSET_TAGS['M_DERIV'], ASSET_TAGS[label.upper()]],
@@ -56,6 +57,8 @@ def makeDerivatives(task):
 		if ogv_asset_path is not None:
 			p = Popen(["ffmpeg2theora", asset_path])
 			p.wait()
+			
+			video.addFile(ogv_asset_path, None, sync=True)
 	
 	asset_path = video.addAsset(None, "thumb_%s.jpg" % video.file_name[:-4],
 		tags=[ASSET_TAGS['M_DERIV'], ASSET_TAGS['THUMB']],

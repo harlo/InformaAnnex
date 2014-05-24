@@ -93,16 +93,21 @@ def preprocessImage(task):
 				new_task = { 'doc_id' : image._id, 'queue' : task.queue }
 				task_path = None
 				
+				gz = image.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']], 
+					description="j3m data extracted from obscura marker")
+				
 				if un_b64_mime_type == MIME_TYPES['pgp']:
-					task_path = "PGP.request_decrypt.requestDecrypt"
-					new_task['pgp_file'] = asset_path
+					task_path = "PGP.decrypt.decrypt"
+					new_task.update{
+						'pgp_file' : asset_path,
+						'next_task_path' : "J3M.j3mify.j3mify",
+						'save_as' : gz
+					})
 					
 					was_encrypted = True
 					
 				elif un_b64_mime_type == MIME_TYPES['gzip']:
 					task_path = "J3M.j3mify.j3mify"
-					image.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']], 
-						description="j3m data extracted from obscura marker")
 
 				if task_path is not None:
 					new_task['task_path'] = task_path					
