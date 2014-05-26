@@ -32,7 +32,8 @@
 		"MED" : "medium_res",
 		"LOW" : "low_res",
 		"SIG" : "j3m_signature",
-		"M_DERIV" : "media_derivative"
+		"M_DERIV" : "media_derivative",
+		"PGP_KEY" : "pgp_key"
 	},
 	"MIME_TYPES" : {
 		"zip" : "application/zip",

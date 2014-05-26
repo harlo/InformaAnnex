@@ -8,3 +8,14 @@ class InformaCamSource(UnveillanceDocument):
 			if DEBUG: print "NEW SOURCE\n%s" % inflate
 		
 		super(InformaCamSource, self).__init__(_id=_id, inflate=inflate)
+	
+	def reverifyMedia(self):
+		media = self.query()
+		
+		if media is None: 
+			if DEBUG: print "NO DOCUMENTS FROM THIS SOURCE"
+			return
+		
+		for m in media:
+			m.j3m_verified = True
+			m.save()

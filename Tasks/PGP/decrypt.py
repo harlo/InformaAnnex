@@ -58,6 +58,7 @@ def decrypt(task):
 				print MIME_TYPE_TASKS[mime_type][0]
 	
 	if task_path is not None:
+		from lib.Worker.Models.uv_task import UnveillanceTask
 		new_task = UnveillanceTask(inflate={
 			'task_path' : task_path,
 			'doc_id' : media._id,

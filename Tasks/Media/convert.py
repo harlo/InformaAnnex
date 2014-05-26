@@ -39,13 +39,17 @@ def unzipAndEvaluateArchive(task):
 			r"credentials"
 		],
 		'j3mlog' : [
-			r"log.j3m(?:\.json)",
+			r"log.j3m(?:\.json)?",
 			r".+\.jpg",
 			r".+\.mkv"
 		]
 	}
 	
-	document = None
+	next_task = { 
+		'queue' : task.queue,
+		'assets' : unzipped_files,
+		'task_path' : None
+	}
 	
 	import re
 	for facet, names in ZIPPED_ASSET_EXPECTED_NAMES.iteritems():
@@ -53,23 +57,29 @@ def unzipAndEvaluateArchive(task):
 			matches = [n for n in names if re.match(n, file)]
 			if len(matches) > 0:
 				if facet == "source":
-					from lib.Worker.Models.ic_source import InformaCamSource
-					document = InformaCamSource(inflate={
-					
+					next_task.update({
+						'task_path' : "Source.init_source.initSource"
 					})
 				elif facet == "j3mlog":
-					from lib.Worker.Models.ic_j3mlog import InformaCamLog
-					document = InformaCamLog(inflate={
-					
+					next_task.update({
+						'task_path' : "Log.unpack_j3mlog.unpackJ3MLog"
 					})
+				break
+		
+		if next_task['task_path'] is not None: break
+	
+	if next_task['task_path'] is None:
+		print "NO DECERNABLE TASK PATH"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
+		
 	'''
 		could be either a source or a j3mlog
 	'''
-	if document is not None:
-		new_task = UnveillanceTask(inflate={
-			'task_path' : task_path
-		})
 	
+	new_task = UnveillanceTask(inflate=next_task)
+	if DEBUG: print new_task.emit()
+	new_task.run()
 	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

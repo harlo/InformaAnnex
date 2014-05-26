@@ -98,7 +98,7 @@ def preprocessImage(task):
 				
 				if un_b64_mime_type == MIME_TYPES['pgp']:
 					task_path = "PGP.decrypt.decrypt"
-					new_task.update{
+					new_task.update({
 						'pgp_file' : asset_path,
 						'next_task_path' : "J3M.j3mify.j3mify",
 						'save_as' : gz
