@@ -53,8 +53,10 @@ def j3mify(task):
 	back_sentinel = ",\"signature\":"
 	
 	j3m = j3m[len(front_sentinel) : j3m.rindex(back_sentinel)]
-	media.addAsset(j3m, "j3m.json", tags=[ASSET_TAGS['J3M']],
-		description="The j3m itself.")
+	media.addFile(
+		media.addAsset(
+			j3m, "j3m.json", tags=[ASSET_TAGS['J3M']], description="The j3m itself."), 
+		None, sync=True)
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	next_task = UnveillanceTask(inflate={
