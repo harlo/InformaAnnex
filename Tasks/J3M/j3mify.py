@@ -19,8 +19,13 @@ def j3mify(task):
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
+	
+	if hasattr(task, "j3m_name"):
+		j3m_gz_name = task.j3m_name
+	else:
+		j3m_gz_name = "j3m_raw.gz"
 		
-	j3m_gz = media.loadAsset("j3m_raw.gz")
+	j3m_gz = media.loadAsset(j3m_gz_name)
 	if j3m_gz is None:
 		print "NO J3M.GZ"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag

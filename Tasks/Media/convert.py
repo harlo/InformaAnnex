@@ -21,7 +21,7 @@ def unzipAndEvaluateArchive(task):
 		return
 	
 	zip = media.getAsset(task.file_name, return_only="path")
-	print zip
+	if DEBUG: print "Zip file here: %s" % zip
 	
 	if zip is None:
 		print "THERE IS NO ZIP HERE"
@@ -40,8 +40,7 @@ def unzipAndEvaluateArchive(task):
 		],
 		'j3mlog' : [
 			r"log.j3m(?:\.json)?",
-			r".+\.jpg",
-			r".+\.mkv"
+			r".+\.(?:jpg|mkv)$"
 		]
 	}
 	
@@ -74,7 +73,7 @@ def unzipAndEvaluateArchive(task):
 		return
 		
 	'''
-		could be either a source or a j3mlog
+		could be either a source or a j3mlog at this point.
 	'''
 	
 	new_task = UnveillanceTask(inflate=next_task)

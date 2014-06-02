@@ -9,9 +9,7 @@ def unpackJ3MLog(uv_task):
 	task.setStatus(412)
 		
 	from lib.Worker.Models.ic_j3mlog import InformaCamJ3MLog
-	
 	from conf import DEBUG
-	from vars import ASSET_TAGS
 	
 	j3m_log = InformaCamJ3MLog(_id=uv_task.doc_id)
 	if j3m_log is None:
@@ -29,31 +27,30 @@ def unpackJ3MLog(uv_task):
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	from lib.Worker.Models.uv_document import UnveillanceDocument
-	from lib.Worker.Models.ic_j3m import InformaCamJ3M
 	from conf import ANNEX_DIR
 	
 	next_task = None
 	for asset in uv_task.assets:
 		attachment = None
 		
-		if re.match(r'', asset):
+		if re.match(r'log.j3m(?:\.json)?', asset):
 			# is the j3m
 			j3m_name = j3m_log.addAsset(asset, None)
 			if j3m_name is None:
 				print "COULD NOT ADD J3M."
-				print "\n\n************** %s [ERROR] ******************\n" % task_tag
-				return
+				print "\n\n************** %s [WARN] ******************\n" % task_tag
+				continue
 			
 			next_task = UnveillanceTask(inflate={
-				'task_path' : "J3M.massage_j3m.massageJ3M",
+				#'task_path' : "J3M.massage_j3m.massageJ3M", ? or...
+				'task_path' : "J3M.j3mify.py",
 				'doc_id' : j3m_log._id,
 				'queue' : uv_task.queue,
 				'j3m_name' : j3m_name
 			})
 			
-		elif re.match(r'', asset):
-			# is a submission; create it
-			# move asset over into ANNEX_DIR first
+		elif re.match(r'.+\.(?:jpg|mkv)$', asset):
+			# is a submission; create it, but move asset over into ANNEX_DIR first
 			asset_path = os.path.join(ANNEX_DIR, self.base_path, asset)
 			if DEBUG:
 				print "MOVING ASSET FROM %s" % asset_path
