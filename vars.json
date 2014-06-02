@@ -118,6 +118,83 @@
 		]
 	},
 	"ELASTICSEARCH_MAPPINGS" : {
-		
+		"public_hash" : {
+			"type" : "string",
+			"store" : true,
+			"index" : "not_analyzed"
+		},
+		"data" : {
+			"properties" : {
+				"exif" : {
+					"properties" : {
+						"location" : {
+							"type" : "geo_point",
+							"store" : true,
+							"include_in_parent" : true,
+							"include_in_root" : true
+						}
+					}
+				},
+				"sensorCapture" : {
+					"type" : "nested",
+					"include_in_parent" : true,
+					"include_in_root" : true,
+					"properties" : {
+						"sensorPlayback" : {
+							"type" : "nested",
+							"include_in_parent" : true,
+							"include_in_root" : true,
+							"properties" : {
+								"gps_coords" : {
+									"type" : "geo_point"
+								},
+								"regionLocationData" : {
+									"properties" : {
+										"gps_coords" : {
+											"type" : "geo_point"
+										}
+									}
+								},
+								"visibleWifiNetworks" : {
+									"type" : "nested",
+									"include_in_parent" : true,
+									"include_in_root" : true
+								}
+							}
+						}
+					}
+				},
+				"userAppendedData" : {
+					"type" : "nested",
+					"include_in_parent" : true,
+					"include_in_root" : true,
+					"properties" : {
+						"associatedForms" : {
+							"type" : "nested",
+							"include_in_parent" : true,
+							"include_in_root" : true
+						}
+					}
+				}
+			}
+		},
+		"genealogy" : {
+			"properties" : {
+				"createdOnDevice" : {
+					"type" : "string",
+					"store" : true,
+					"index" : "not_analyzed"
+				},
+				"dateCreated" : {
+					"type" : "long",
+					"store" : true
+				},
+				"hashes" : {
+					"type" : "string",
+					"store" : true,
+					"index" : "not_analyzed"
+				}
+			}
+		}
 	}
 }
