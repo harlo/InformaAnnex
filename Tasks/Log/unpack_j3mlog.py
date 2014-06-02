@@ -3,16 +3,79 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def unpackJ3MLog(task):
+def unpackJ3MLog(uv_task):
 	task_tag = "UNPACKING J3M LOG"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	task.setStatus(412)
 		
-	from lib.Worker.Models.uv_document import UnveillanceDocument
+	from lib.Worker.Models.ic_j3mlog import InformaCamJ3MLog
 	
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 	
+	j3m_log = InformaCamJ3MLog(_id=uv_task.doc_id)
+	if j3m_log is None:
+		print "J3M LOG DOES NOT EXIST"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
 	
-	task.finish()
+	if not hasattr(task, "assets"):
+		print "NO ASSETS FOR THIS J3M LOG"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
+	
+	import re, os
+	from fabric.api import *
+	
+	from lib.Worker.Models.uv_task import UnveillanceTask
+	from lib.Worker.Models.uv_document import UnveillanceDocument
+	from lib.Worker.Models.ic_j3m import InformaCamJ3M
+	from conf import ANNEX_DIR
+	
+	next_task = None
+	for asset in uv_task.assets:
+		attachment = None
+		
+		if re.match(r'', asset):
+			# is the j3m
+			j3m_name = j3m_log.addAsset(asset, None)
+			if j3m_name is None:
+				print "COULD NOT ADD J3M."
+				print "\n\n************** %s [ERROR] ******************\n" % task_tag
+				return
+			
+			next_task = UnveillanceTask(inflate={
+				'task_path' : "J3M.massage_j3m.massageJ3M",
+				'doc_id' : j3m_log._id,
+				'queue' : uv_task.queue,
+				'j3m_name' : j3m_name
+			})
+			
+		elif re.match(r'', asset):
+			# is a submission; create it
+			# move asset over into ANNEX_DIR first
+			asset_path = os.path.join(ANNEX_DIR, self.base_path, asset)
+			if DEBUG:
+				print "MOVING ASSET FROM %s" % asset_path
+			local("mv %s %s" % (asset_path, ANNEX_DIR))
+			
+			media = UnveillanceDocument(inflate={ 'file_name' : asset })
+			
+			if not hasattr(j3m_log, "documents"): j3m_log.documents = []
+			j3m_log.documents.append(media)
+			
+			media_task = UnveillanceTask(inflate={
+				'task_path' : "Documents.evaluate_document.evaluateDocument",
+				'doc_id' : media._id,
+				'queue' : uv_task.queue
+			})
+			media_task.run()
+	
+	from vars import MIME_TYPES
+	j3m_log.mime_type = MIME_TYPES['j3mlog']
+	j3m_log.save()
+	
+	if next_task is not None: next_task.run()
+	
+	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

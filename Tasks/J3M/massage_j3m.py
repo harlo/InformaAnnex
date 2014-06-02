@@ -21,7 +21,12 @@ def massageJ3M(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	j3m = media.loadAsset("j3m.json")
+	if hasattr(task, "j3m_name"):
+		j3m_name = task.j3m_name
+	else:
+		j3m_name = "j3m.json"
+
+	j3m = media.loadAsset(j3m_name)
 	if j3m is None:
 		print "J3M IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
