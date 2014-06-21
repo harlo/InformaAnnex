@@ -1,16 +1,16 @@
 import httplib2, json, os, re
 from subprocess import Popen
-
 from apiclient import errors
 from apiclient.discovery import build
+from time import sleep, time
 
-from Models.ic_client import InformaCamClient
-
+from lib.Worker.Models.ic_client import InformaCamClient
 from conf import DEBUG, ANNEX_DIR, getSecrets
 
-class InformaCamDriveClient(InformaCamSyncClient):
+class InformaCamDriveClient(InformaCamClient):
 	def __init__(self, mode=None):
 		credentials = None
+		super(InformaCamDriveClient, self).__init__(mode)
 		
 		try:
 			if self.config['account_type'] == "service":
@@ -43,11 +43,8 @@ class InformaCamDriveClient(InformaCamSyncClient):
 		http = credentials.authorize(http)
 		
 		self.service = build('drive', 'v2', http=http)
-		self.setInfo()
 		
 		if mode is not None:
-			InformaCamClient.__init__(self, mode)
-			
 			self.mime_types['folder'] = "application/vnd.google-apps.folder"
 			self.mime_types['file'] = "application/vnd.google-apps.file"
 			
@@ -59,9 +56,6 @@ class InformaCamDriveClient(InformaCamSyncClient):
 		
 			except errors.HttpError as e:
 				if DEBUG: print e
-			
-	def setInfo(self):
-		print "setting user info"
 	
 	def getAssetMimeType(self, fileId):
 		return self.getFile(fileId)['mimeType']
@@ -120,6 +114,7 @@ class InformaCamDriveClient(InformaCamSyncClient):
 			return self.absorb(self.getFile(file))
 		
 		self.files_manifest.append(file)
+		super(InformaCamDriveClient, self).absorb(self.getFileName(file))
 	
 	def getFileName(self, file):
 		if type(file) is str or type(file) is unicode:
@@ -196,10 +191,7 @@ class InformaCamDriveClient(InformaCamSyncClient):
 		
 		return None
 	
-	def download(self, file, save_as=None, save=True, return_content=False):
-		# don't waste my time.
-		if DEBUG: print "HAAAAAAAY DOWNLOAD FIRST!"
-		
+	def download(self, file, save_as=None, save=True, return_content=False):		
 		if not hasattr(self, "service"): return None
 		if not save and not return_content: return None
 		
@@ -234,35 +226,3 @@ class InformaCamDriveClient(InformaCamSyncClient):
 			else: return destination_path
 		
 		return None
-		
-	def authenticate(self, auth_token=None):
-		if auth_token is None:
-			from oauth2client.client import OAuth2WebServerFlow
-			
-			self.flow = OAuth2WebServerFlow(
-				self.config['client_id'], self.config['client_secret'],
-				self.config['scopes'], 
-				"http://localhost:%d%s" % (API_PORT, self.config['redirect_uri']))
-
-			return self.flow.step1_get_authorize_url()
-		else:
-			credentials = self.flow.step2_exchange(auth_token)
-
-			auth_storage = os.path.join(INFORMA_CONF_ROOT, "drive.secrets.json")
-			
-			from oauth2client.file import Storage
-			Storage(auth_storage).put(credentials)
-			
-			self.config.update({
-				'auth_storage' : auth_storage,
-				'account_type' : "user"
-			})
-			
-			sync_config = getSecrets(key="informacam.sync")
-			sync_config['google_drive'].update(self.config)
-			saveSecret("informacam.sync", sync_config)
-			
-			del self.flow
-			return True
-		
-		return False

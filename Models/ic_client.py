@@ -1,9 +1,10 @@
-import json, copy
+import json, copy, os
 from time import time, sleep
+from fabric.api import local, settings
 
-from lib.Annex.lib.Core.Utils.funcs import generateMD5Hash
+from lib.Core.Utils.funcs import generateMD5Hash
 from vars import MIME_TYPES, MIME_TYPE_MAP
-from conf import getSecrets
+from conf import getSecrets, ANNEX_DIR
 
 class InformaCamClient(object):
 	def __init__(self, mode):
@@ -20,6 +21,13 @@ class InformaCamClient(object):
 		self.mode = mode
 		self.last_update_for_mode = self.absorbed_log[mode]
 		self.usable = True
+	
+	def absorb(self, file):
+		with settings(warn_only=True):
+			this_dir = os.getcwd()
+			os.chdir(ANNEX_DIR)
+			local(".git/hooks/post-receive %s" % file)
+			os.chdir(this_dir)
 	
 	def getFileNameHash(self, name_base):
 		from conf import DOC_SALT

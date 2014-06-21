@@ -114,6 +114,13 @@ def validateRepository(repo=None):
 			repo['absorbed_flag'] = "absorbedByInformaCam"
 		
 		if r == "google_drive":
+			repo['scopes'] = [
+				"https://www.googleapis.com/auth/drive",
+				"https://www.googleapis.com/auth/drive.file",
+				"https://www.googleapis.com/auth/drive.install",
+				"https://www.googleapis.com/auth/userinfo.profile"
+			]
+			
 			if 'account_type' not in repo.keys():
 				repo['account_type'] = prompt("What account type?\n'service' or 'user'?")
 			else:
@@ -128,19 +135,30 @@ def validateRepository(repo=None):
 					
 			elif repo['account_type'] == "user":
 				repo['client_email'] = repo['asset_id']
+				repo['redirect_url'] = "urn:ietf:wg:oauth:2.0:oob"
 				
 				if 'client_id' not in repo.keys():
 					repo['client_id'] = prompt("Client ID:")
 				
 				if 'client_secret' not in repo.keys():
 					repo['client_secret'] = prompt("Client Secret:")
+				
+				if 'auth_storage' is not in repo.keys():
+					from oauth2client.client import OAuth2WebServerFlow
+					from oauth2client.file import Storage
+					
+					print "To use Google Drive to import documents into the Annex server, you must authenticate the application by visiting the URL below."
+					print "You will be shown an authentication code that you must paste into this terminal when prompted."					
+					
+					repo['auth_storage'] = os.path.join(os.getcwd(), "lib", 
+						"Annex", "conf", "drive.secrets.json")
+						
+					flow = OAuth2WebServerFlow(repo['client_id'], repo['client_secret'], repo['scopes'], repo['redirect_url'])
+					
+					print "URL: %s" % flow.step1_get_authorize_url()
+					credentials = flow.step2_exchange(prompt("Code: "))
+					Storage(repo['auth_storage']).put(credentials)
 			
-			repo.update({ 'scopes' : [
-				"https://www.googleapis.com/auth/drive",
-				"https://www.googleapis.com/auth/drive.file",
-				"https://www.googleapis.com/auth/drive.install",
-				"https://www.googleapis.com/auth/userinfo.profile"
-			]})
 		elif r == "globaleaks":
 			if 'context_gus' not in repo.keys():
 				repo['context_gus'] = prompt("Context Gus:")
@@ -166,7 +184,7 @@ if __name__ == "__main__":
 	sec_config = {}
 	print "****************************************"
 	try:
-		with open(os.path.join(base_dir, "unveillance.secrets.json"), 'rb') as SECRETS:
+		with open(os.path.join(conf_dir, "unveillance.secrets.json"), 'rb') as SECRETS:
 			sec_config.update(json.loads(SECRETS.read()))
 	except Exception as e:
 		print "no config file found.  please fill out the following:"
@@ -280,7 +298,20 @@ if __name__ == "__main__":
 	with open(os.path.join(conf_dir, "unveillance.secrets.json"), 'wb+') as SECRETS:
 		SECRETS.write(json.dumps(sec_config))
 	
-	with settings(warn_only=True):
-		local("rm %s" % os.path.join(base_dir, "unveillance.secrets.json"))
+	initial_tasks = []
 	
+	try:
+		with open(os.path.join(conf_dir, "initial_tasks.json"), 'rb') as I_TASKS:
+			initial_tasks.extend(json.loads(I_TASKS.read()))
+	except IOError as e: pass
+		
+	initial_tasks.append({
+		'task_path' : "Intake.intake.doIntake",
+		'queue' : os.getenv('UV_UUID'),
+		'persist' : 3
+	})
+	
+	with open(os.path.join(conf_dir, "initial_tasks.json"), 'wb+') as I_TASKS:
+		I_TASKS.write(json.dumps(initial_tasks))
+		
 	exit(0)

@@ -2,13 +2,12 @@
 THIS_DIR=`pwd`
 
 cd lib/Annex
-./setup.sh $THIS_DIR/unveillance.secrets.json
+./setup.sh $1
 source ~/.bashrc
 sleep 2
 
 cd $THIS_DIR
 
-<<DONE
 sudo apt-get install -y pkg-config libx264-dev make g++ python-setuptools yasm ant openjdk-7-jdk lsof
 cd lib/FFmpeg
 ./configure
@@ -28,7 +27,6 @@ cd $JPEG_TOOLS_DIR/JavaMediaHasher
 ant compile dist
 cp dist/JavaMediaHasher.jar $JPEG_TOOLS_DIR
 ant clean
-DONE
 
 cd $THIS_DIR/lib/python-gnupg
 make install

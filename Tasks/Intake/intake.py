@@ -8,7 +8,13 @@ def doIntake(task):
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	task.setStatus(412)
 
-	if not hasattr(task, 'mode'): mode = "submissions"
+	next_mode = None
+	if not hasattr(task, 'mode'):
+		mode = "sources"
+		next_mode = "submissions"
+	else:
+		mode = task.mode
+		del task.mode
 
 	if mode not in ['sources', 'submissions']:
 		print "No acceptable mode"
@@ -19,7 +25,9 @@ def doIntake(task):
 	try:
 		from conf import getSecrets
 		repo = getSecrets("repo")
-	except Exception as e: pass
+	except Exception as e:
+		print "ERROR GETTING REPO: %s" % e
+		pass
 	
 	if repo is None:
 		print "No repos to query."
@@ -29,8 +37,10 @@ def doIntake(task):
 	client = None
 
 	if repo['source'] == "google_drive":
+		from lib.Worker.Models.ic_google_drive_client import InformaCamDriveClient
 		client = InformaCamDriveClient(mode=mode)
 	elif repo['source'] == "globaleaks":
+		from lib.Worker.Models.ic_globaleaks_client import InformaCamGlobaleaksClient
 		client = InformaCamGlobaleaksClient(mode=mode)
 
 	if not client.usable:
@@ -48,5 +58,9 @@ def doIntake(task):
 
 	client.updateLog()
 
-	task.finish()
-	print "\n\n************** %s [END] ******************\n" % task_tag
+	if next_mode is not None:
+		task.mode = next_mode
+		doIntake(task)
+	else:
+		task.finish()
+		print "\n\n************** %s [END] ******************\n" % task_tag
