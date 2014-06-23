@@ -3,24 +3,28 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def unzipAndEvaluateArchive(task):
+def unzipAndEvaluateArchive(uv_task):
 	task_tag = "UNZIPPING FILE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
+	print "unzipping and evaluating %s" % uv_task.doc_id
+	uv_task.setStatus(412)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 	
-	media = UnveillanceDocument(_id=task.doc_id)
+	media = UnveillanceDocument(_id=uv_task.doc_id)
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	zip = media.getAsset(task.file_name, return_only="path")
+	if hasattr(uv_task, "file_name"):
+		zip = media.getAsset(uv_task.file_name, return_only="path")
+	else:
+		zip = media.file_name
+	
 	if DEBUG: print "Zip file here: %s" % zip
 	
 	if zip is None:
@@ -29,7 +33,11 @@ def unzipAndEvaluateArchive(task):
 		return
 	
 	from fabric.api import *
-	unzipped_files = local("unzip %s -d %s" % (zip, media.base_path))
+	
+	unzipped_files = []
+	with settings(warn_only=True):
+		unzipped_files = local("unzip %s -d %s" % (zip, media.base_path))
+	
 	if DEBUG: print unzipped_files
 	
 	ZIPPED_ASSET_EXPECTED_NAMES = {
@@ -45,7 +53,7 @@ def unzipAndEvaluateArchive(task):
 	}
 	
 	next_task = { 
-		'queue' : task.queue,
+		'queue' : uv_task.queue,
 		'assets' : unzipped_files,
 		'task_path' : None
 	}
