@@ -32,11 +32,15 @@ def unzipAndEvaluateArchive(uv_task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	import os
 	from fabric.api import *
 	
 	unzipped_files = []
 	with settings(warn_only=True):
+		this_dir = os.getcwd()
+		os.chdir(ANNEX_DIR)
 		unzipped_files = local("unzip %s -d %s" % (zip, media.base_path))
+		os.chdir(this_dir)
 	
 	if DEBUG: print unzipped_files
 	
