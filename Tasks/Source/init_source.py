@@ -48,9 +48,11 @@ def initSource(task):
 			sync = True
 					
 		asset_path = source.addAsset(None, asset, description=description, tags=tags)
+		print "ASSET PATH: %s" % asset_path
 		
 		if asset_path is None: continue
-		if sync: 
+		if sync:
+			print "ADDING %s AS FILE AS WELL:" % asset_path
 			source.addFile(asset_path, None, sync=True)
 			
 	if next_task is None:

@@ -1,4 +1,4 @@
-from lib.Workers.Models.uv_object import UnveillanceObject
+from lib.Worker.Models.uv_document import UnveillanceDocument
 
 from conf import DEBUG
 

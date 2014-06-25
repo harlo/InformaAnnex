@@ -6,9 +6,10 @@ from vars import CELERY_STUB as celery_app
 def importKey(task):
 	task_tag = "IMPORTING KEY"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "image preprocessing at %s" % task.doc_id
+	print "importing gpg key for %s" % task.doc_id
 	task.setStatus(412)
-		
+	
+	import os
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 	
@@ -27,8 +28,13 @@ def importKey(task):
 			pgp_key = source.getAssetsByTagName(ASSET_TAGS['PGP_KEY'])[0]
 		except Exception as e:
 			print "NO PGP KEY FOR SOURCE: %s" % e
-			print "\n\n************** %s [ERROR] ******************\n" % task_tag
-			return
+			pgp_key = os.path.join(source.base_path, "publicKey")
+			
+			if not os.path.exists(pgp_key):
+				print "\n\n************** %s [ERROR] ******************\n" % task_tag
+				return
+			
+			print "using %s instead" % pgp_key
 			
 	elif hasattr(task, "pgp_file"):
 		pgp_key = task.pgp_file
@@ -40,6 +46,8 @@ def importKey(task):
 	
 	import gnupg, re
 	gpg = gnupg.GPG(homedir=getConfig('informacam.pgp_homedir'))
+	
+	print "NOW IMPORTING PGP KEY"
 	
 	import_result = gpg.import_keys(pgp_key)
 	packet_result = gpg.list_packets(pgp_key).data.split("\n")

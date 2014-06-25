@@ -33,13 +33,24 @@ def unzipAndEvaluateArchive(uv_task):
 		return
 	
 	import os
+	from time import sleep
 	from fabric.api import *
+	from conf import ANNEX_DIR
 	
-	unzipped_files = []
 	with settings(warn_only=True):
 		this_dir = os.getcwd()
 		os.chdir(ANNEX_DIR)
-		unzipped_files = local("unzip %s -d %s" % (zip, media.base_path))
+		local("unzip -o %s -d %s" % (zip, media.base_path))
+		sleep(2)
+		
+		try:
+			unzipped_files = local("ls %s" % media.base_path, capture=True).splitlines()
+		except Exception as e:
+			print e
+			print "Could not find any unzipped files in %s" % media.base_path
+			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			return
+			
 		os.chdir(this_dir)
 	
 	if DEBUG: print unzipped_files
@@ -59,13 +70,14 @@ def unzipAndEvaluateArchive(uv_task):
 	next_task = { 
 		'queue' : uv_task.queue,
 		'assets' : unzipped_files,
-		'task_path' : None
+		'task_path' : None,
+		'doc_id' : media._id
 	}
 	
 	import re
 	for facet, names in ZIPPED_ASSET_EXPECTED_NAMES.iteritems():
 		for file in unzipped_files:
-			matches = [n for n in names if re.match(n, file)]
+			matches = [n for n in names if re.match(n, file) is not None]
 			if len(matches) > 0:
 				if facet == "source":
 					next_task.update({
@@ -87,12 +99,12 @@ def unzipAndEvaluateArchive(uv_task):
 	'''
 		could be either a source or a j3mlog at this point.
 	'''
-	
+	from lib.Worker.Models.uv_task import UnveillanceTask
 	new_task = UnveillanceTask(inflate=next_task)
 	if DEBUG: print new_task.emit()
 	new_task.run()
 	
-	task.finish()
+	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
 
 @celery_app.task
