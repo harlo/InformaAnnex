@@ -7,7 +7,7 @@ def massageJ3M(task):
 	task_tag = "MASSAGING J3M"
 	
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "image preprocessing at %s" % task.doc_id
+	print "massaging j3m at %s" % task.doc_id
 	task.setStatus(412)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
@@ -81,13 +81,13 @@ def massageJ3M(task):
 				playback['sensorPlayback']['visibleWifiNetworks'][i]['bt_hash'] = sha1(b['bssid']).hexdigest()
 		except KeyError as e: pass
 	
-	import os
+	import os, json
 	from conf import getConfig
 	from lib.Core.Utils.funcs import b64decode
 	from lib.Worker.Utils.funcs import getFileType, unGzipBinary
 
 	try:
-		with open(os.path.join(getConfig('forms_root'), "forms.json"), 'rb') as F:		
+		with open(os.path.join(getConfig('informacam.forms_root'), "forms.json"), 'rb') as F:		
 			for udata in j3m['data']['userAppendedData']:
 				for aForms in udata['associatedForms']:
 					for f in json.loads(F.read())['forms']:
