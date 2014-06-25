@@ -59,10 +59,6 @@ def initSource(task):
 		print "NO PUBLIC KEY FOR SOURCE."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
-
-	from vars import MIME_TYPES
-	source.mime_type = MIME_TYPES['pgp']
-	source.save()
 	
 	next_task.run()
 	task.finish()

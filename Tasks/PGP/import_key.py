@@ -71,7 +71,10 @@ def importKey(task):
 		return
 	
 	if source is not None:
+		from vars import MIME_TYPES
+		
 		source.fingerprint = fingerprint
+		source.mime_type = MIME_TYPES['pgp']	
 		source.save()
 	
 		from lib.Worker.Models.uv_task import UnveillanceTask

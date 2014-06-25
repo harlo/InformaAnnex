@@ -53,6 +53,8 @@ class InformaCamDriveClient(InformaCamClient):
 					folderId=self.config['asset_root']).execute()
 				
 				self.files_manifest = [self.getFile(f['id']) for f in files['items']]
+				print "\n***\nTHESE ARE THE FILES ALREADY ABSORBED IN %s" % self.config['asset_root']
+				print self.files_manifest
 		
 			except errors.HttpError as e:
 				if DEBUG: print e
@@ -86,8 +88,11 @@ class InformaCamDriveClient(InformaCamClient):
 			
 			try:
 				clone = self.service.files().copy(
-					fileId=f['id'], body={'title':f['id']}).execute()
-				if DEBUG: print clone
+					fileId=f['id'], body={
+						'title':f['id'],
+						'parents' : [{ 'id' : self.config['asset_root'] }]
+					}).execute()
+				if DEBUG: print "CLONE RESULT:\n%s" % clone
 				
 				assets.append(clone['id'])
 				sleep(2)

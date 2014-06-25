@@ -44,4 +44,5 @@ pip install --upgrade -r requirements.txt
 python setup.py
 
 cd lib/Annex
+chmod 0400 conf/*
 python unveillance_annex.py -firstuse
