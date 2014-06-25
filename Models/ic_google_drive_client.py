@@ -97,6 +97,10 @@ class InformaCamDriveClient(InformaCamClient):
 				if DEBUG: print "CLONE RESULT:\n%s" % clone
 				
 				assets.append(clone['id'])
+				
+				# XXX: TESTING...
+				if self.mode == "submissions": break
+				
 				sleep(2)
 			except errors.HttpError as e:
 				print e

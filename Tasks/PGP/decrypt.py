@@ -3,71 +3,79 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def decrypt(task):
+def decrypt(uv_task):
 	task_tag = "DECRYPTING"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "decrypting pgp blob for %s" % task.doc_id
-	task.setStatus(412)
+	print "decrypting pgp blob for %s" % uv_task.doc_id
+	uv_task.setStatus(412)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 		
-	media = UnveillanceDocument(_id=task.doc_id)
+	media = UnveillanceDocument(_id=uv_task.doc_id)
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	pgp_file = media.getFile(task.pgp_file, return_only="path")
-	if pgp_file is None:
+	if not media.getFile(uv_task.pgp_file):
 		print "NO PGP FILE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	gpg_pwd = getConfig("informacam.pgp.passphrase")
+	from conf import getSecrets
+	gpg_pwd = getSecrets("gpg_pwd")
 	if gpg_pwd is None:
 		print "NO PASSPHRASE TO DECRYPT"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	# save as task.pgp_file.decrypted or whatever
-	if not hasattr(task, "save_as"): save_as = "%s.decrypted"
-	else: save_as = task.save_as
+	# save as task.pgp_file.decrypted or whatever	
+	import os
+	from fabric.api import local, settings
 
-	from fabric.api import *
+	from conf import ANNEX_DIR, DEBUG
 	
-	local("gpg --no-tty --passphrase %s --output %s --decrypt %s" % (gpg_pwd,
-		save_as, pgp_file))
-	del gpg_pwd
-	
-	# if there is a next path tag, do that. or...
-	task_path = None
-	if hasattr(task, 'next_task_path'):
-		task_path = task.next_task_path
-	
-	# route according to mime type
+	if not hasattr(uv_task, "save_as"): 
+		save_as = "%s.decrypted" % uv_task.pgp_file
 	else:
+		save_as = uv_task.save_as
+
+	with settings(warn_only=True):
+		local("gpg --no-tty --passphrase %s --output %s --decrypt %s" % (gpg_pwd,
+		os.path.join(ANNEX_DIR, save_as), os.path.join(ANNEX_DIR, uv_task.pgp_file)))
+	
+	del gpg_pwd
+		
+	task_path = None
+	if hasattr(uv_task, 'next_task_path'):
+		# if there is a next path tag, do that. or...
+		task_path = uv_task.next_task_path
+	else:
+		# route according to mime type
 		# get mime type of decrypted
 		from vars import MIME_TYPE_TASKS
-		from lib.Core.Utils.funcs import getFileType
-		mime_type = getFileType("%s.decrypted" % pgp_file)
+		from lib.Worker.Utils.funcs import getFileType
+		mime_type = getFileType(os.path.join(ANNEX_DIR, save_as))
 		
 		# usable: json (a j3m), zip (a source or a log->batch)
 		if mime_type in MIME_TYPE_TASKS.keys():
-			if DEBUG:
-				print "mime type usable..."
-				print MIME_TYPE_TASKS[mime_type][0]
+			print "mime type (%s) usable..." % mime_type
+						
+			try:
+				task_path = MIME_TYPE_TASKS[mime_type][0]
+			except Exception as e:
+				print e
 	
 	if task_path is not None:
 		from lib.Worker.Models.uv_task import UnveillanceTask
 		new_task = UnveillanceTask(inflate={
 			'task_path' : task_path,
 			'doc_id' : media._id,
-			'queue' : task.queue,
-			'file_name' : "%s.decrypted" % pgp_file
+			'queue' : uv_task.queue,
+			'file_name' : save_as
 		})
 	
-		if DEBUG: print new_task.emit()
 		new_task.run()
 	
-	task.finish()
+	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

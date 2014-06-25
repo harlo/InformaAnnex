@@ -48,6 +48,7 @@ def doIntake(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 
+	task.lock()
 	try:
 		for asset in client.listAssets(omit_absorbed=True):
 			mime_type = client.getAssetMimeType(asset)
@@ -60,6 +61,7 @@ def doIntake(task):
 		print e
 
 	client.updateLog()
+	task.unlock()
 
 	if next_mode is not None:
 		task.mode = next_mode

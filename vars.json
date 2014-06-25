@@ -42,7 +42,8 @@
 		"pgp" : "application/pgp",
 		"gzip" : "application/x-gzip",
 		"json" : "application/json",
-		"j3m" : "informacam/j3m"
+		"j3m" : "informacam/j3m",
+		"j3mlog" : "informacam/log"
 	},
 	"MIME_TYPE_MAP" : {
 		"application/zip" : "zip",
@@ -50,14 +51,16 @@
 		"application/octet-stream" : "wildcard",
 		"application/pgp" : "pgp",
 		"application/x-gzip" : "gz",
-		"informacam/j3m" : "json"
+		"informacam/j3m" : "json",
+		"informacam/log" : "wildcard"
 	},
 	"MIME_TYPE_TASKS" : {
 		"text/plain" : ["Media.evaluate_text.evaluateTextFile"],
 		"image/jpeg" : ["Image.preprocess_image.preprocessImage"],
 		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"],
 		"application/zip" : ["Media.convert.unzipAndEvaluateArchive"],
-		"application/json": ["J3M.j3mify.j3mify"]
+		"application/json": ["J3M.j3mify.j3mify"],
+		"informacam/log" : ["Log.unpack_j3mlog.unpackJ3MLog"]
 	},
 	"METADATA_ASPECTS" : {
 		"Tiff" : [

@@ -21,13 +21,13 @@ def unzipAndEvaluateArchive(uv_task):
 		return
 	
 	if hasattr(uv_task, "file_name"):
-		zip = media.getAsset(uv_task.file_name, return_only="path")
+		zip = uv_task.file_name
 	else:
 		zip = media.file_name
 	
 	if DEBUG: print "Zip file here: %s" % zip
 	
-	if zip is None:
+	if zip is None or not media.getFile(zip):
 		print "THERE IS NO ZIP HERE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
@@ -53,7 +53,7 @@ def unzipAndEvaluateArchive(uv_task):
 			
 		os.chdir(this_dir)
 	
-	if DEBUG: print unzipped_files
+	if DEBUG: print "UNZIPPED FILES: \n%s" % unzipped_files
 	
 	ZIPPED_ASSET_EXPECTED_NAMES = {
 		'source' : [
@@ -69,7 +69,7 @@ def unzipAndEvaluateArchive(uv_task):
 	
 	next_task = { 
 		'queue' : uv_task.queue,
-		'assets' : unzipped_files,
+		'assets' : [],
 		'task_path' : None,
 		'doc_id' : media._id
 	}
@@ -79,17 +79,17 @@ def unzipAndEvaluateArchive(uv_task):
 		for file in unzipped_files:
 			matches = [n for n in names if re.match(n, file) is not None]
 			if len(matches) > 0:
-				if facet == "source":
-					next_task.update({
-						'task_path' : "Source.init_source.initSource"
-					})
-				elif facet == "j3mlog":
-					next_task.update({
-						'task_path' : "Log.unpack_j3mlog.unpackJ3MLog"
-					})
-				break
-		
-		if next_task['task_path'] is not None: break
+				next_task['assets'].append(file)
+				
+				if next_task['task_path'] is None:
+					if facet == "source":
+						next_task.update({
+							'task_path' : "Source.init_source.initSource"
+						})
+					elif facet == "j3mlog":
+						next_task.update({
+							'task_path' : "Log.unpack_j3mlog.unpackJ3MLog"
+						})
 	
 	if next_task['task_path'] is None:
 		print "NO DECERNABLE TASK PATH"
@@ -101,7 +101,6 @@ def unzipAndEvaluateArchive(uv_task):
 	'''
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	new_task = UnveillanceTask(inflate=next_task)
-	if DEBUG: print new_task.emit()
 	new_task.run()
 	
 	uv_task.finish()

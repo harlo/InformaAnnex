@@ -6,24 +6,26 @@ from vars import CELERY_STUB as celery_app
 def unpackJ3MLog(uv_task):
 	task_tag = "UNPACKING J3M LOG"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	task.setStatus(412)
+	uv_task.setStatus(412)
 		
-	from lib.Worker.Models.ic_j3mlog import InformaCamJ3MLog
+	from lib.Worker.Models.ic_j3mlog import InformaCamLog
 	from conf import DEBUG
 	
-	j3m_log = InformaCamJ3MLog(_id=uv_task.doc_id)
+	if not hasattr(uv_task, "assets"):
+		print "NO ASSETS FOR THIS J3M LOG"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
+	
+	j3m_log = InformaCamLog(_id=uv_task.doc_id)
 	if j3m_log is None:
 		print "J3M LOG DOES NOT EXIST"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	if not hasattr(task, "assets"):
-		print "NO ASSETS FOR THIS J3M LOG"
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		return
+	print j3m_log.emit()
 	
 	import re, os
-	from fabric.api import *
+	from fabric.api import local, settings
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	from lib.Worker.Models.uv_document import UnveillanceDocument
@@ -31,19 +33,19 @@ def unpackJ3MLog(uv_task):
 	
 	next_task = None
 	for asset in uv_task.assets:
+		print "J3M LOG ASSET: %s" % asset
 		attachment = None
 		
 		if re.match(r'log.j3m(?:\.json)?', asset):
 			# is the j3m
-			j3m_name = j3m_log.addAsset(asset, None)
+			j3m_name = j3m_log.addAsset(None, asset)
 			if j3m_name is None:
 				print "COULD NOT ADD J3M."
 				print "\n\n************** %s [WARN] ******************\n" % task_tag
 				continue
 			
 			next_task = UnveillanceTask(inflate={
-				#'task_path' : "J3M.massage_j3m.massageJ3M", ? or...
-				'task_path' : "J3M.j3mify.py",
+				'task_path' : "J3M.j3mify.j3mify",
 				'doc_id' : j3m_log._id,
 				'queue' : uv_task.queue,
 				'j3m_name' : j3m_name
@@ -54,7 +56,9 @@ def unpackJ3MLog(uv_task):
 			asset_path = os.path.join(ANNEX_DIR, self.base_path, asset)
 			if DEBUG:
 				print "MOVING ASSET FROM %s" % asset_path
-			local("mv %s %s" % (asset_path, ANNEX_DIR))
+				
+			with settings(warn_only=True):
+				local("mv %s %s" % (asset_path, ANNEX_DIR))
 			
 			media = UnveillanceDocument(inflate={ 'file_name' : asset })
 			

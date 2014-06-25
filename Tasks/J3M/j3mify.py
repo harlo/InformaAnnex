@@ -3,39 +3,44 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def j3mify(task):
+def j3mify(uv_task):
 	task_tag = "J3MIFYING"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
-		
+	print "j3mifying asset at %s" % uv_task.doc_id
+	uv_task.setStatus(412)
+	
+	import os
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 	
-	media = UnveillanceDocument(_id=task.doc_id)
+	media = UnveillanceDocument(_id=uv_task.doc_id)
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	if hasattr(task, "j3m_name"):
-		j3m_gz_name = task.j3m_name
+	if hasattr(uv_task, "j3m_name"):
+		j3m_name = uv_task.j3m_name
 	else:
-		j3m_gz_name = "j3m_raw.gz"
-		
-	j3m_gz = media.loadAsset(j3m_gz_name)
-	if j3m_gz is None:
+		j3m_name = os.path.join(ANNEX_DIR, "j3m_raw.gz")
+	
+	if not media.getFile(j3m_name):
 		print "NO J3M.GZ"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
+	
 	
 	from cStringIO import StringIO
 	from lib.Worker.Utils.funcs import getFileType, unGzipBinary
 	from vars import MIME_TYPES
 	
-	j3m = unGzipBinary(j3m_gz)
+	j3m = media.loadFile(j3m_name)
+	j3m_type = getFileType(j3m, as_buffer=True)
+	
+	if j3m_type == MIME_TYPES['gzip']:
+		j3m = unGzipBinary(j3m)
 	
 	if j3m is None or getFileType(j3m, as_buffer=True) != MIME_TYPES['json']:
 		print "THIS IS NOT A J3M"
@@ -67,9 +72,9 @@ def j3mify(task):
 	next_task = UnveillanceTask(inflate={
 		'task_path' : "PGP.verify_signature.verifySignature",
 		'doc_id' : media._id,
-		'queue' : task.queue
+		'queue' : uv_task.queue
 	})
 	next_task.run()
 	
-	task.finish()
+	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
