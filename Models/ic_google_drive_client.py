@@ -54,7 +54,9 @@ class InformaCamDriveClient(InformaCamClient):
 				
 				self.files_manifest = [self.getFile(f['id']) for f in files['items']]
 				print "\n***\nTHESE ARE THE FILES ALREADY ABSORBED IN %s" % self.config['asset_root']
-				print self.files_manifest
+				print len(self.files_manifest)
+				print "OUR MODE: %s" % mode
+				print self.mode
 		
 			except errors.HttpError as e:
 				if DEBUG: print e

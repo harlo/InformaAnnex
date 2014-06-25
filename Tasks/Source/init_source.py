@@ -36,7 +36,6 @@ def initSource(task):
 			# import key
 			description = "Source's public pgp key"
 			tags = [ASSET_TAGS['PGP_KEY']]
-			source.file_name = asset
 			
 			from lib.Worker.Models.uv_task import UnveillanceTask
 		
@@ -59,6 +58,9 @@ def initSource(task):
 		print "NO PUBLIC KEY FOR SOURCE."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
+	
+	from time import sleep
+	sleep(10)
 	
 	next_task.run()
 	task.finish()

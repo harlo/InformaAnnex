@@ -10,7 +10,7 @@ def importKey(task):
 	task.setStatus(412)
 	
 	import os
-	from conf import DEBUG
+	from conf import DEBUG, ANNEX_DIR
 	from vars import ASSET_TAGS
 	
 	source = None
@@ -28,13 +28,13 @@ def importKey(task):
 			pgp_key = source.getAssetsByTagName(ASSET_TAGS['PGP_KEY'])[0]
 		except Exception as e:
 			print "NO PGP KEY FOR SOURCE: %s" % e
-			pgp_key = os.path.join(source.base_path, "publicKey")
+			pgp_key = os.path.join(ANNEX_DIR, source.base_path, "publicKey")
+			print "trying to use %s instead" % pgp_key
 			
 			if not os.path.exists(pgp_key):
+				print "STILL COULD NOT FIND A PGP KEY AT %s" % pgp_key
 				print "\n\n************** %s [ERROR] ******************\n" % task_tag
 				return
-			
-			print "using %s instead" % pgp_key
 			
 	elif hasattr(task, "pgp_file"):
 		pgp_key = task.pgp_file
@@ -45,34 +45,25 @@ def importKey(task):
 		return
 	
 	import gnupg, re
-	gpg = gnupg.GPG(homedir=getConfig('informacam.pgp_homedir'))
+	from conf import getConfig
+	gpg = gnupg.GPG(homedir=getConfig('gpg_homedir'))
 	
 	print "NOW IMPORTING PGP KEY"
+	with open(pgp_key, 'rb') as PGP_KEY:	
+		import_result = gpg.import_keys(PGP_KEY.read())
+		if DEBUG: print import_result.results
 	
-	import_result = gpg.import_keys(pgp_key)
-	packet_result = gpg.list_packets(pgp_key).data.split("\n")
-	for line in packet_result:
-		if DEBUG: print line
-		if re.match(r'^:signature packet:', line):
-			key_id = line[-16:]
-			if DEBUG: print "FOUND KEY ID: %s" % key_id
-			break
-	
-	key_result = [key for key in gpg.list_keys() if key['keyid'] == key_id]
-	if len(key_result) != 1:
-		print "NO, COULD NOT FIND A MATCHING KEY"
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		return
-	
-	fingerprint = key_result[0]['fingerprint']
-	if fingerprint is None:
+	try:
+		fingerprint = import_result.results[0]['fingerprint']
+	except Exception as e:
 		print "THIS FINGERPRINT IS FUCKING NULL WHAT DO YOU THINK THIS IS?"
+		print e
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
 	if source is not None:
 		from vars import MIME_TYPES
-		
+
 		source.fingerprint = fingerprint
 		source.mime_type = MIME_TYPES['pgp']	
 		source.save()

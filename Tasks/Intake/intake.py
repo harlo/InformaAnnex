@@ -48,13 +48,16 @@ def doIntake(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 
-	for asset in client.listAssets(omit_absorbed=True):
-		mime_type = client.getAssetMimeType(asset)
-		if not mime_type in client.mime_types.itervalues(): continue
+	try:
+		for asset in client.listAssets(omit_absorbed=True):
+			mime_type = client.getAssetMimeType(asset)
+			if not mime_type in client.mime_types.itervalues(): continue
 	
-		if client.download(asset) is not None:
-			client.absorb(asset)
-			client.lockFile(asset)
+			if client.download(asset) is not None:
+				client.absorb(asset)
+				client.lockFile(asset)
+	except TypeError as e:
+		print e
 
 	client.updateLog()
 
