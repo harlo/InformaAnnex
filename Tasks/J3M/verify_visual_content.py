@@ -32,7 +32,14 @@ def verifyVisualContent(task):
 	from conf import ANNEX_DIR, getConfig
 	from vars import MIME_TYPES
 	
-	supplied_hashes = loads(j3m)['genealogy']['hashes']
+	try:
+		supplied_hashes = loads(j3m)['genealogy']['hashes']
+	except KeyError as e:
+		print "NO HASHES"
+		print "\n\n************** %s [WARNING] ******************\n" % task_tag
+		task.finish()
+		return
+		
 	media.media_verified = False
 	
 	if media.mime_type == MIME_TYPES['image']:
