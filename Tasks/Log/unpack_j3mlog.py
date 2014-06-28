@@ -73,6 +73,7 @@ def unpackJ3MLog(uv_task):
 			media_task.run()
 	
 	from vars import MIME_TYPES
+	j3m_log.original_mime_type = j3m_log.mime_type
 	j3m_log.mime_type = MIME_TYPES['j3mlog']
 	j3m_log.save()
 	

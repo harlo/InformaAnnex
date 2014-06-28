@@ -65,6 +65,7 @@ def importKey(task):
 		from vars import MIME_TYPES
 
 		source.fingerprint = fingerprint
+		source.original_mime_type = source.mime_type
 		source.mime_type = MIME_TYPES['pgp']	
 		source.save()
 	
