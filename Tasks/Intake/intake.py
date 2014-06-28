@@ -38,7 +38,13 @@ def doIntake(task):
 
 	if repo['source'] == "google_drive":
 		from lib.Worker.Models.ic_google_drive_client import InformaCamDriveClient
-		client = InformaCamDriveClient(mode=mode)
+		try:
+			client = InformaCamDriveClient(mode=mode)
+		except Exception as e:
+			print "ERROR Creating client:\n%s" % e
+			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			return
+	
 	elif repo['source'] == "globaleaks":
 		from lib.Worker.Models.ic_globaleaks_client import InformaCamGlobaleaksClient
 		client = InformaCamGlobaleaksClient(mode=mode)
