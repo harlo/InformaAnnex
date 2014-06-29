@@ -99,7 +99,7 @@ class InformaCamDriveClient(InformaCamClient):
 				assets.append(clone['id'])
 				
 				# XXX: TESTING...
-				if self.mode == "submissions": break
+				#if self.mode == "submissions": break
 				
 				sleep(2)
 			except errors.HttpError as e:
