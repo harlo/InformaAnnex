@@ -52,7 +52,9 @@ def massageJ3M(task):
 	
 	try:
 		location = j3m['data']['exif']['location']
-		j3m['data']['exif']['location'] = [location[1], location[0]]
+		j3m['data']['exif'].update({
+			'location' : [location[1], location[0]]
+		})
 	except KeyError as e:
 		if DEBUG: print "no key %s" % e
 		pass
@@ -64,22 +66,44 @@ def massageJ3M(task):
 		pass
 	
 	for playback in j3m['data']['sensorCapture']:
-		try:
-			gps = str(playback['sensorCapture']['gps_coords'])[1:-1].split(",")
-			playback['sensorPlayback']['gps_coords'] = [float(gps[1]), float(gps[0])]
-		except KeyError as e: pass
+		if 'gps_coords' in playback['sensorPlayback'].keys():
+			try:
+				gps = str(playback['sensorPlayback']['gps_coords'])[1:-1].split(",")
+				if DEBUG:
+					print "REPLACING %s as geopoint" % gps
+					print type(gps)
+			
+				playback['sensorPlayback'].update({
+					'gps_coords' : [float(gps[1]), float(gps[0])]
+				})
+			except Exception as e:
+				if DEBUG: print e
+				pass
 		
-		try:
-			gps = str(playback['sensorPlayback']['regionLocationData']['gps_coords'])
-			gps = gps[1:-1].split(",")
-			playback['sensorPlayback']['regionLocationData']['gps_coords'] = [
-				float(gps[1]), float(gps[0])]
-		except KeyError as e: pass
+		if 'regionLocationData' in playback['sensorPlayback'].keys():
+			try:
+				gps = str(playback['sensorPlayback']['regionLocationData']['gps_coords'])
+				gps = gps[1:-1].split(",")
+
+				if DEBUG:
+					print "REPLACING %s as geopoint" % gps
+					
+				playback['sensorPlayback']['regionLocationData'].update({
+					'gps_coords' : [float(gps[1]), float(gps[0])]
+				})
+			except Exception as e:
+				if DEBUG: print e
+				pass
 		
-		try:
-			for i,b in enumerate(playback['sensorPlayback']['visibleWifiNetworks']):
-				playback['sensorPlayback']['visibleWifiNetworks'][i]['bt_hash'] = sha1(b['bssid']).hexdigest()
-		except KeyError as e: pass
+		if 'visibleWifiNetworks' in playback['sensorPlayback'].keys():
+			try:
+				for i,b in enumerate(playback['sensorPlayback']['visibleWifiNetworks']):
+					playback['sensorPlayback']['visibleWifiNetworks'][i].update({
+						'bt_hash' : sha1(b['bssid']).hexdigest()
+					})
+			except Exception as e:
+				if DEBUG: print e
+				pass
 	
 	import os, json
 	from conf import getConfig
@@ -159,6 +183,9 @@ def massageJ3M(task):
 		
 		j3m['media_id'] = media._id
 		j3m = InformaCamJ3M(inflate=j3m)
+		
+		print "\n\n***NEW J3M CREATED***\n\n" 
+		j3m.save()
 		
 		media.j3m_id = j3m._id
 		print "NEW J3M ID TO SAVE: %s " % media.j3m_id

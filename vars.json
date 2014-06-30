@@ -1,27 +1,7 @@
 {
-	"QUERY_DEFAULTS" : {
-		"IC_J3M" : {
-			"bool" : {
-				"must" : [
-					{
-						"query_string" : {
-							"default_field" : "ic_j3m.uv_doc_type",
-							"query" : "IC_J3M"
-						}
-					}
-				],
-				"must_not" : [
-					{
-						"constant_score" : {
-							"filter" : {
-								"missing" : {
-									"field" : "ic_j3m.media_id"
-								}
-							}
-						}
-					}
-				]
-			}
+	"QUERY_KEYS" : {
+		"must" : {
+			"match" : ["genealogy.createdOnDevice"]
 		}
 	},
 	"ASSET_TAGS" : {

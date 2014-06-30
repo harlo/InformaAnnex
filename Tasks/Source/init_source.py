@@ -9,7 +9,6 @@ def initSource(task):
 	task.setStatus(412)
 	
 	from lib.Worker.Models.ic_source import InformaCamSource
-	
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 	
@@ -24,7 +23,8 @@ def initSource(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	import re
+	import re, json, os
+	from conf import ANNEX_DIR
 	
 	next_task = None
 	for asset in task.assets:
@@ -45,6 +45,21 @@ def initSource(task):
 				'queue' : task.queue
 			})
 			sync = True
+		elif re.match(r'credentials', asset):
+			# parse creds
+			with open(os.path.join(ANNEX_DIR, source.base_path, asset), 'rb') as C:
+				try:
+					credentials = json.loads(C.read())
+					if DEBUG: print credentials
+					for field in ['email','alias']:
+						if field in credentials.keys() and credentials[field] != "":
+							setattr(source, field, credentials[field])
+					
+					source.save()
+				except Exception as e:
+					if DEBUG: print e
+					pass
+			
 					
 		asset_path = source.addAsset(None, asset, description=description, tags=tags)
 		print "ASSET PATH: %s" % asset_path

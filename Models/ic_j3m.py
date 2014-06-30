@@ -17,4 +17,3 @@ class InformaCamJ3M(UnveillanceObject):
 			inflate['mime_type'] = MIME_TYPES['j3m']
 			
 		super(InformaCamJ3M, self).__init__(_id=_id, inflate=inflate)
-		print self.emit()
