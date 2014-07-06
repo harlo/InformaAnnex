@@ -64,12 +64,6 @@ class InformaCamDriveClient(InformaCamClient):
 	def getAssetMimeType(self, fileId):
 		return self.getFile(fileId)['mimeType']
 	
-	def lockFile(self, file):
-		if type(file) is str or type(file) is unicode:
-			return self.lockFile(self.getFile(file))
-		
-		pass
-	
 	def listAssets(self, omit_absorbed=False):
 		assets = []
 		files = None
@@ -122,7 +116,7 @@ class InformaCamDriveClient(InformaCamClient):
 	
 	def absorb(self, file):
 		if type(file) is str or type(file) is unicode:
-			return self.absorb(self.getFile(file))
+			self.absorb(self.getFile(file))
 		
 		self.files_manifest.append(file)
 		super(InformaCamDriveClient, self).absorb(self.getFileName(file))

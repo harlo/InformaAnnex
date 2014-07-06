@@ -1,7 +1,17 @@
 {
 	"QUERY_KEYS" : {
 		"must" : {
-			"match" : ["genealogy.createdOnDevice"]
+			"match" : [
+				"genealogy.createdOnDevice", "alias", "public_hash",
+				"data.exif.make", "data.exif.model", "genealogy.hashes",
+				"data.sensorCapture.sensorPlayback.visibleWifiNetworks"
+			],
+			"range" : ["genealogy.dateCreated"],
+			"geo_distance" : [
+				"data.exif.location", 
+				"data.sensorCapture.sensorPlayback.gps_coords",
+				"data.sensorCapture.sensorPlayback.regionLocationData.gps_coords"
+			]
 		}
 	},
 	"ASSET_TAGS" : {

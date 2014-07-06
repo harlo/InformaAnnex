@@ -110,10 +110,14 @@ def massageJ3M(task):
 	from lib.Core.Utils.funcs import b64decode
 	from lib.Worker.Utils.funcs import getFileType, unGzipBinary
 
+	searchable_text = []
+	
 	try:
 		with open(os.path.join(getConfig('informacam.forms_root'), "forms.json"), 'rb') as F:		
 			for udata in j3m['data']['userAppendedData']:
 				for aForms in udata['associatedForms']:
+					st_keys = aForms['answerData'].keys()
+					
 					for f in json.loads(F.read())['forms']:
 						if f['namespace'] == aForms['namespace']:
 							try:
@@ -136,6 +140,10 @@ def massageJ3M(task):
 							try:
 								idx = 0
 								for audio in f['audio_form_data']:
+									try:
+										while audio in st_keys: st_keys.remove(audio)
+									except Exception as e: pass
+									
 									try:
 										audio_data = b64decode(
 											aForms['answerData'][audio])
@@ -171,6 +179,11 @@ def massageJ3M(task):
 							except KeyError as e:
 								if DEBUG: print "no key %s" % e
 								pass
+					
+					if len(st_keys) > 0:
+						for key in st_keys:
+							searchable_text.append(aForms['answerData'][key])
+						
 	except KeyError as e:
 		if DEBUG: print "no key %s" % e
 		pass
@@ -182,6 +195,9 @@ def massageJ3M(task):
 		from lib.Worker.Models.uv_task import UnveillanceTask
 		
 		j3m['media_id'] = media._id
+		if len(searchable_text) > 0:
+			j3m['searchable_text'] = searchable_text
+
 		j3m = InformaCamJ3M(inflate=j3m)
 		
 		print "\n\n***NEW J3M CREATED***\n\n" 

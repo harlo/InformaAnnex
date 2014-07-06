@@ -62,7 +62,7 @@ def doIntake(task):
 	
 			if client.download(asset) is not None:
 				client.absorb(asset)
-				client.lockFile(asset)
+
 	except TypeError as e:
 		print e
 
