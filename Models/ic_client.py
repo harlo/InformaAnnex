@@ -26,7 +26,7 @@ class InformaCamClient(object):
 		with settings(warn_only=True):
 			this_dir = os.getcwd()
 			os.chdir(ANNEX_DIR)
-			local(".git/hooks/post-receive %s" % file)
+			local(".git/hooks/uv-post-netcat %s" % file)
 			os.chdir(this_dir)
 	
 	def getFileNameHash(self, name_base):

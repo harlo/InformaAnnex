@@ -66,8 +66,8 @@ def doIntake(task):
 	except TypeError as e:
 		print e
 
-	client.updateLog()
 	task.unlock()
+	client.updateLog()
 
 	if next_mode is not None:
 		task.mode = next_mode
