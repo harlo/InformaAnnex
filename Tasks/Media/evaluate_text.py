@@ -31,6 +31,10 @@ def evaluateTextFile(task):
 	from lib.Core.Utils.funcs import b64decode
 	un_b64 = b64decode(content)
 	
+	# We have removed base 64-ing from the log files...
+	if un_b64 is None:
+		un_b64 = content
+	
 	if un_b64 is not None:
 		from lib.Worker.Utils.funcs import getFileType
 		from vars import MIME_TYPES, MIME_TYPE_MAP
@@ -68,6 +72,6 @@ def evaluateTextFile(task):
 				
 				new_task = UnveillanceTask(inflate=task_args)
 				new_task.run()
-	
+
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
