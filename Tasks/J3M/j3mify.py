@@ -21,13 +21,14 @@ def j3mify(uv_task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	from conf import ANNEX_DIR
 	if hasattr(uv_task, "j3m_name"):
 		j3m_name = uv_task.j3m_name
 	else:
-		j3m_name = os.path.join(ANNEX_DIR, "j3m_raw.gz")
+		j3m_name = os.path.join(media.base_path, "j3m_raw.gz")
 	
 	if not media.getFile(j3m_name):
-		print "NO J3M.GZ"
+		print "NO J3M.GZ at %s" % j3m_name
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
@@ -43,7 +44,7 @@ def j3mify(uv_task):
 		j3m = unGzipBinary(j3m)
 	
 	if j3m is None or getFileType(j3m, as_buffer=True) != MIME_TYPES['json']:
-		print "THIS IS NOT A J3M"
+		print "THIS IS NOT A J3M (type %s)" % j3m_type
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 

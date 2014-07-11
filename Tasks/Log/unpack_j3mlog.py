@@ -22,7 +22,10 @@ def unpackJ3MLog(uv_task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	print j3m_log.emit()
+	if DEBUG:
+		print "\n\nTHIS IS THE J3M IN QUESTION\n"
+		print j3m_log.emit()
+		print "\n\n"
 	
 	import re, os
 	from fabric.api import local, settings
@@ -38,7 +41,22 @@ def unpackJ3MLog(uv_task):
 		
 		if re.match(r'log.j3m(?:\.json)?', asset):
 			# is the j3m
-			j3m_name = j3m_log.addAsset(None, asset)
+			if DEBUG:
+				print "\n\n*************SAVING ASSET TO J3M (asset %s)" % asset
+				for key in j3m_log.emit().keys():
+					print key
+					print type(getattr(j3m_log, key))
+					print "\n"
+				print "\n\n"
+			
+			try:	
+				j3m_name = j3m_log.addAsset(None, asset)
+			except Exception as e:
+				print "WE COULD NOT ADD ASSET %s?" % asset
+				print e
+				print "\n\n************** %s [WARN] ******************\n" % task_tag
+				continue
+				
 			if j3m_name is None:
 				print "COULD NOT ADD J3M."
 				print "\n\n************** %s [WARN] ******************\n" % task_tag
@@ -53,7 +71,7 @@ def unpackJ3MLog(uv_task):
 			
 		elif re.match(r'.+\.(?:jpg|mkv)$', asset):
 			# is a submission; create it, but move asset over into ANNEX_DIR first
-			asset_path = os.path.join(ANNEX_DIR, self.base_path, asset)
+			asset_path = os.path.join(ANNEX_DIR, j3m_log.base_path, asset)
 			if DEBUG:
 				print "MOVING ASSET FROM %s" % asset_path
 				
@@ -68,13 +86,16 @@ def unpackJ3MLog(uv_task):
 			media_task = UnveillanceTask(inflate={
 				'task_path' : "Documents.evaluate_document.evaluateDocument",
 				'doc_id' : media._id,
-				'queue' : uv_task.queue
+				'queue' : uv_task.queue,
+				'file_name' : asset
 			})
 			media_task.run()
 	
 	from vars import MIME_TYPES
 	j3m_log.original_mime_type = j3m_log.mime_type
 	j3m_log.mime_type = MIME_TYPES['j3mlog']
+
+	print "\n\n*********BEFORE SAVING:\n%s\n\n*******" % j3m_log.emit()	
 	j3m_log.save()
 	
 	if next_task is not None: next_task.run()

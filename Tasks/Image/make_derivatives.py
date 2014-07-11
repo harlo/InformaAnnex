@@ -3,24 +3,25 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def makeDerivatives(task):
+def makeDerivatives(uv_task):
 	task_tag = "DERIVATIVES: IMAGE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
+	print "image preprocessing at %s" % uv_task.doc_id
+	uv_task.setStatus(412)
 		
 	from lib.Worker.Models.ic_image import InformaCamImage
 	
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 	
-	image = InformaCamImage(_id=task.doc_id)
+	image = InformaCamImage(_id=uv_task.doc_id)
 	if image is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
 	import os
+	from fabric.api import local, settings
 	from subprocess import Popen
 	from conf import ANNEX_DIR
 	
@@ -48,10 +49,15 @@ def makeDerivatives(task):
 		cmd.append(os.path.join(ANNEX_DIR, asset_path))
 		if DEBUG: print "FFMPEG CMD: %s" % cmd
 		
+		with settings(warn_only=True):
+			local(" ".join(cmd))
+			image.addFile(asset_path, None, sync=True)
+			
+		'''
 		p = Popen(cmd)
 		p.wait()
-		
-		image.addFile(asset_path, None, sync=True)
+		'''
 	
-	task.finish()
+	#image.addCompletedTask(uv_task.task_path)
+	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

@@ -90,6 +90,8 @@ def preprocessImage(task):
 				asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
 				image.addAsset(un_b64, asset_path)
 				
+				if DEBUG: print "\n\nPGP KEY FILE PATH: %s\n\n" % asset_path
+				
 				new_task = { 'doc_id' : image._id, 'queue' : task.queue }
 				task_path = None
 				
@@ -99,7 +101,7 @@ def preprocessImage(task):
 				if un_b64_mime_type == MIME_TYPES['pgp']:
 					task_path = "PGP.decrypt.decrypt"
 					new_task.update({
-						'pgp_file' : asset_path,
+						'pgp_file' : os.path.join(image.base_path, asset_path),
 						'next_task_path' : "J3M.j3mify.j3mify",
 						'save_as' : gz
 					})
