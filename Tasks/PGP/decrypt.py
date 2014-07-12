@@ -32,6 +32,7 @@ def decrypt(uv_task):
 	# save as task.pgp_file.decrypted or whatever	
 	import os
 	from fabric.api import local, settings
+	from fabric.context_managers import hide
 
 	from conf import ANNEX_DIR, DEBUG
 	
@@ -40,7 +41,7 @@ def decrypt(uv_task):
 	else:
 		save_as = uv_task.save_as
 
-	with settings(warn_only=True):
+	with settings(hide('everything'), warn_only=True):
 		local("gpg --no-tty --passphrase %s --output %s --decrypt %s" % (gpg_pwd,
 		os.path.join(ANNEX_DIR, save_as), os.path.join(ANNEX_DIR, uv_task.pgp_file)))
 	

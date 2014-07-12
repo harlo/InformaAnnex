@@ -22,6 +22,8 @@ def makeDerivatives(uv_task):
 	
 	import os
 	from fabric.api import local, settings
+	from fabric.context_managers import hide
+	
 	from subprocess import Popen
 	from conf import ANNEX_DIR
 	
@@ -49,7 +51,7 @@ def makeDerivatives(uv_task):
 		cmd.append(os.path.join(ANNEX_DIR, asset_path))
 		if DEBUG: print "FFMPEG CMD: %s" % cmd
 		
-		with settings(warn_only=True):
+		with settings(hide('everything'), warn_only=True):
 			local(" ".join(cmd))
 			image.addFile(asset_path, None, sync=True)
 			

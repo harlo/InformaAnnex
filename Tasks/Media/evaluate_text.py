@@ -20,7 +20,7 @@ def evaluateTextFile(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	if not media.getFile(media.file_name):
+	if not media.queryFile(media.file_name):
 		print "NO DOCUMENT CONTENT"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return

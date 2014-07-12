@@ -29,6 +29,7 @@ def unpackJ3MLog(uv_task):
 	
 	import re, os
 	from fabric.api import local, settings
+	from fabric.context_managers import hide
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	from lib.Worker.Models.uv_document import UnveillanceDocument
@@ -75,7 +76,7 @@ def unpackJ3MLog(uv_task):
 			if DEBUG:
 				print "MOVING ASSET FROM %s" % asset_path
 				
-			with settings(warn_only=True):
+			with settings(hide('everything'), warn_only=True):
 				local("mv %s %s" % (asset_path, ANNEX_DIR))
 			
 			media = UnveillanceDocument(inflate={ 'file_name' : asset })

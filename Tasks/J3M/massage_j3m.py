@@ -112,83 +112,91 @@ def massageJ3M(task):
 
 	searchable_text = []
 	
-	try:
-		with open(os.path.join(getConfig('informacam.forms_root'), "forms.json"), 'rb') as F:		
-			for udata in j3m['data']['userAppendedData']:
-				for aForms in udata['associatedForms']:
-					st_keys = aForms['answerData'].keys()
+	if 'userAppendedData' in j3m['data'].keys():
+		try:
+			with open(os.path.join(getConfig('informacam.forms_root'), "forms.json"), 'rb') as F:
+			
+				form_data = json.loads(F.read())['forms']
+				
+				for udata in j3m['data']['userAppendedData']:
+					for aForms in udata['associatedForms']:
+						st_keys = aForms['answerData'].keys()
 					
-					for f in json.loads(F.read())['forms']:
-						if f['namespace'] == aForms['namespace']:
-							try:
-								for mapping in f['mapping']:
-									try:
-										group = mapping.keys()[0]
-										key = aForms['answerData'][group].split(" ")
+						for f in form_data:
+							if f['namespace'] == aForms['namespace']:
+								try:
+									for mapping in f['mapping']:
+										try:
+											group = mapping.keys()[0]
+											key = aForms['answerData'][group].split(" ")
 										
-										for m in mapping[group]:
-											if m.keys()[0] in key:
-												key[key.index(m.keys()[0])] = m[m.keys()[0]]
-										aForms['answerData'][group] = " ".join(key)
-									except KeyError as e:
-										if DEBUG: print "no key %s" % e
-										pass
-							except KeyError as e:
-								if DEBUG: print "no key %s" % e
-								pass
+											for m in mapping[group]:
+												if m.keys()[0] in key:
+													key[key.index(m.keys()[0])] = m[m.keys()[0]]
+											aForms['answerData'][group] = " ".join(key)
+										except KeyError as e:
+											if DEBUG: print "no key %s" % e
+											pass
+								except KeyError as e:
+									if DEBUG: print "no key %s" % e
+									pass
 							
-							try:
-								idx = 0
-								for audio in f['audio_form_data']:
-									try:
-										while audio in st_keys: st_keys.remove(audio)
-									except Exception as e: pass
+								try:
+									idx = 0
+									for audio in f['audio_form_data']:
+										try:
+											while audio in st_keys: st_keys.remove(audio)
+										except Exception as e: pass
 									
-									try:
-										audio_data = b64decode(
-											aForms['answerData'][audio])
+										try:
+											audio_data = b64decode(
+												aForms['answerData'][audio])
 										
-										if audio_data is None:
-											if DEBUG: print "could not unb64 audio"
-											continue
+											if audio_data is None:
+												if DEBUG: print "could not unb64 audio"
+												continue
 										
-										if getFileType(audio_data, as_buffer=True) != MIME_TYPES['gzip']:
-											if DEBUG: print "audio is not gzipped"
-											continue
+											if getFileType(audio_data, as_buffer=True) != MIME_TYPES['gzip']:
+												if DEBUG: print "audio is not gzipped"
+												continue
 												
-										audio_f = "audio_%d.3gp" % idx
-										idx += 1
+											audio_f = "audio_%d.3gp" % idx
+											idx += 1
 										
-										media.addAsset(unGzipBinary(audio_data), audio_f,
-											tags=[ASSET_TAGS['A_3GP']],
-											description="3gp audio file from form")
+											media.addAsset(unGzipBinary(audio_data), audio_f,
+												tags=[ASSET_TAGS['A_3GP']],
+												description="3gp audio file from form")
 										
-										new_task=UnveillanceTask(inflate={
-											'task_path' : "Media.convert.audioConvert",
-											'doc_id' : media._id,
-											'formats' : ["3gp", "wav"],
-											'src_file' : "audio_%d.3gp" % idx,
-											'queue' : task.queue
-										})
-										new_task.run()
+											new_task=UnveillanceTask(inflate={
+												'task_path' : "Media.convert.audioConvert",
+												'doc_id' : media._id,
+												'formats' : ["3gp", "wav"],
+												'src_file' : "audio_%d.3gp" % idx,
+												'queue' : task.queue
+											})
+											new_task.run()
 										
-										aForms['answerData'][audio] = "audio_%d.wav"
-									except KeyError as e:
-										if DEBUG: print "no key %s" % e
-										pass
-							except KeyError as e:
-								if DEBUG: print "no key %s" % e
-								pass
+											aForms['answerData'][audio] = "audio_%d.wav"
+										except KeyError as e:
+											if DEBUG: print "no key %s" % e
+											pass
+								except KeyError as e:
+									if DEBUG: print "no key %s" % e
+									pass
 					
-					if len(st_keys) > 0:
-						for key in st_keys:
-							searchable_text.append(aForms['answerData'][key])
+						if len(st_keys) > 0:
+							for key in st_keys:
+								searchable_text.append(aForms['answerData'][key])
 						
-	except KeyError as e:
-		if DEBUG: print "no key %s" % e
-		pass
-	except IOError as e:
-		if DEBUG: print "no forms to go over: %s" % e
+		except KeyError as e:
+			if DEBUG: print "no key %s" % e
+			pass
+		except IOError as e:
+			print "\n\n************** %s [WARN] ******************\n" % task_tag
+			if DEBUG: print "no forms to go over: %s" % e
+		except ValueError as e:
+			print "\n\n************** %s [WARN] ******************\n" % task_tag
+			if DEBUG: print "for some reason, forms.json is not legible?\n%s" % e
 										
 	if media.addAsset(j3m, "j3m.json", as_literal=False) is not False:
 		from lib.Worker.Models.ic_j3m import InformaCamJ3M

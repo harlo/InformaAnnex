@@ -54,6 +54,8 @@ def doIntake(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 
+	from time import sleep
+	
 	task.lock()
 	try:
 		for asset in client.listAssets(omit_absorbed=True):
@@ -62,6 +64,8 @@ def doIntake(task):
 	
 			if client.download(asset) is not None:
 				client.absorb(asset)
+			
+			sleep(5)
 
 	except TypeError as e:
 		print e

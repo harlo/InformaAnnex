@@ -69,6 +69,7 @@ def importKey(task):
 		source.mime_type = MIME_TYPES['pgp']	
 		source.save()
 	
+		'''
 		from lib.Worker.Models.uv_task import UnveillanceTask
 		next_task = UnveillanceTask(inflate={
 			'task_path' : "Source.reverify_media.reverifyMedia",
@@ -76,6 +77,7 @@ def importKey(task):
 			'doc_id' : source._id
 		})
 		next_task.run()
+		'''
 	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
