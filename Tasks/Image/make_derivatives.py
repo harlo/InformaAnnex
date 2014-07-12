@@ -34,6 +34,7 @@ def makeDerivatives(uv_task):
 		'low' : [0.5, 0.5]
 	}
 	
+	image.getFile(image.file_name)
 	for label, res in resolutions.iteritems():
 		asset_path = image.addAsset(None, "%s_%s" % (label, image.file_name),
 			tags=[ASSET_TAGS['M_DERIV'], ASSET_TAGS[label.upper()]],
@@ -49,17 +50,15 @@ def makeDerivatives(uv_task):
 			cmd.extend(["-vf", "scale=iw*%.3f:ih*%.3f" % (res[0], res[1])])
 		
 		cmd.append(os.path.join(ANNEX_DIR, asset_path))
-		if DEBUG: print "FFMPEG CMD: %s" % cmd
+		
 		
 		with settings(hide('everything'), warn_only=True):
-			local(" ".join(cmd))
-			image.addFile(asset_path, None, sync=True)
+			ffmpeg = local(" ".join(cmd), capture=True)
 			
-		'''
-		p = Popen(cmd)
-		p.wait()
-		'''
+			if DEBUG: print "FFMPEG CMD: %s\n%s" % (cmd, ffmpeg)
+			
+			image.addFile(asset_path, None, sync=True)
 	
-	#image.addCompletedTask(uv_task.task_path)
+	image.addCompletedTask(uv_task.task_path)
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
