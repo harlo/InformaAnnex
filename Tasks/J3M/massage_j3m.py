@@ -41,6 +41,13 @@ def massageJ3M(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	try:
+		media.date_created = j3m['genealogy']['dateCreated']
+		media.saveFields("date_created")
+	except KeyError as e:
+		print "J3M HAS NO DATE CREATED: %s" % e
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
+	
 	from hashlib import sha1
 	try:
 		j3m['public_hash'] = sha1("".join(
