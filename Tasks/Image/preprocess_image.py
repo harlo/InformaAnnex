@@ -133,12 +133,22 @@ def preprocessImage(task):
 	})
 	new_task.run()
 
-	new_task = UnveillanceTask(inflate={
-		'task_path' : "Image.make_derivatives.makeDerivatives",
-		'doc_id' : image._id,
-		'queue' : task.queue
-	})
-	new_task.run()
+	from vars import UPLOAD_RESTRICTION
+	upload_restriction = UPLOAD_RESTRICTION['no_restriction']
+
+	try:
+		upload_restriction = image.getFileMetadata('uv_restriction')
+	except Exception as e:
+		print "could not get metadata for uv_restriction"
+		print e
+
+	if upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
+		new_task = UnveillanceTask(inflate={
+			'task_path' : "Image.make_derivatives.makeDerivatives",
+			'doc_id' : image._id,
+			'queue' : task.queue
+		})
+		new_task.run()
 
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

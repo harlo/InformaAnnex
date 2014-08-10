@@ -90,12 +90,22 @@ def makeDerivatives(task):
 	new_task.run()
 	'''
 	
-	new_task = UnveillanceTask(inflate={
-		'task_path' : "Video.make_derivatives.makeDerivatives",
-		'doc_id' : video._id,
-		'queue' : task.queue
-	})
-	new_task.run()
+	from vars import UPLOAD_RESTRICTION
+	upload_restriction = UPLOAD_RESTRICTION['no_restriction']
+
+	try:
+		upload_restriction = video.getFileMetadata('uv_restriction')
+	except Exception as e:
+		print "could not get metadata for uv_restriction"
+		print e
+
+	if upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
+		new_task = UnveillanceTask(inflate={
+			'task_path' : "Video.make_derivatives.makeDerivatives",
+			'doc_id' : video._id,
+			'queue' : task.queue
+		})
+		new_task.run()
 	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
