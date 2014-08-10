@@ -10,7 +10,7 @@ from conf import DEBUG, ANNEX_DIR, getSecrets
 class InformaCamGlobaleaksClient(InformaCamClient):
 	def __init__(self, mode=None):
 		credentials = None
-		super(InformaCamGlobaleaksClient, self).__init__(mode)
+		super(InformaCamGlobaleaksClient, self).__init__(mode, tag="globaleaks")
 		
 		# set env variables for gl
 		

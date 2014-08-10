@@ -10,7 +10,7 @@ from conf import DEBUG, ANNEX_DIR, getSecrets
 class InformaCamDriveClient(InformaCamClient):
 	def __init__(self, mode=None):
 		credentials = None
-		super(InformaCamDriveClient, self).__init__(mode)
+		super(InformaCamDriveClient, self).__init__(mode, tag="google_drive")
 		
 		try:
 			if self.config['account_type'] == "service":
