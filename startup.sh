@@ -1,3 +1,3 @@
 #! /bin/bash
 cd lib/Annex
-./restart.sh
+./startup.sh

@@ -48,7 +48,7 @@ def preprocessImage(task):
 	while data:
 		data = data.strip()
 		
-		#if DEBUG: print data
+		if DEBUG: print data
 		
 		if re.match(r'^file: .*', data): pass
 		elif re.match(r'^Generic APPn .*', data): pass
@@ -134,15 +134,14 @@ def preprocessImage(task):
 	new_task.run()
 
 	from vars import UPLOAD_RESTRICTION
-	upload_restriction = UPLOAD_RESTRICTION['no_restriction']
-
+	
 	try:
 		upload_restriction = image.getFileMetadata('uv_restriction')
 	except Exception as e:
 		print "could not get metadata for uv_restriction"
 		print e
 
-	if upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
+	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
 		new_task = UnveillanceTask(inflate={
 			'task_path' : "Image.make_derivatives.makeDerivatives",
 			'doc_id' : image._id,

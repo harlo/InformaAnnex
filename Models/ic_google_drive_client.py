@@ -3,6 +3,7 @@ from subprocess import Popen
 from apiclient import errors
 from apiclient.discovery import build
 from time import sleep, time
+from datetime import datetime
 
 from lib.Worker.Models.ic_client import InformaCamClient
 from conf import DEBUG, ANNEX_DIR, getSecrets
@@ -11,6 +12,9 @@ class InformaCamDriveClient(InformaCamClient):
 	def __init__(self, mode=None):
 		credentials = None
 		super(InformaCamDriveClient, self).__init__(mode, tag="google_drive")
+
+		last_update = datetime.fromtimestamp(int(self.last_update_for_mode/1000))
+		self.last_update_for_mode_iso = last_update.isoformat()
 		
 		try:
 			if self.config['account_type'] == "service":
@@ -47,10 +51,17 @@ class InformaCamDriveClient(InformaCamClient):
 		if mode is not None:
 			self.mime_types['folder'] = "application/vnd.google-apps.folder"
 			self.mime_types['file'] = "application/vnd.google-apps.file"
+
+			q = {
+				'q' : "modifiedDate <= '%s'" % self.last_update_for_mode_iso,
+				'folderId' : self.config['asset_root'],
+				'maxResults' : 500
+			}
+
+			print q
 			
 			try:
-				files = self.service.children().list(
-					folderId=self.config['asset_root']).execute()
+				files = self.service.children().list(**q).execute()
 				
 				self.files_manifest = [self.getFile(f['id']) for f in files['items']]
 				print "\n***\nTHESE ARE THE FILES ALREADY ABSORBED IN %s" % self.config['asset_root']
@@ -119,6 +130,7 @@ class InformaCamDriveClient(InformaCamClient):
 		if type(file) is str or type(file) is unicode:
 			self.absorb(self.getFile(file))
 		
+		print "***ABSORBING FILE:\n%s\n\n" % file
 		self.files_manifest.append(file)
 		super(InformaCamDriveClient, self).absorb(self.getFileName(file), file_alias=self.getFileAlias(file))
 	
