@@ -50,7 +50,8 @@
 		"video/x-matroska" : ["Video.preprocess_video.preprocessVideo"],
 		"application/zip" : ["Media.convert.unzipAndEvaluateArchive"],
 		"application/json": ["J3M.j3mify.j3mify"],
-		"informacam/log" : ["Log.unpack_j3mlog.unpackJ3MLog"]
+		"informacam/log" : ["Log.unpack_j3mlog.unpackJ3MLog"],
+		"application/octet-stream" : ["Media.convert.unzipAndEvaluateArchive"]
 	},
 	"METADATA_ASPECTS" : {
 		"Tiff" : [

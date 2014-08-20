@@ -86,7 +86,8 @@ class InformaCamDriveClient(InformaCamClient):
 				clone = self.service.files().copy(
 					fileId=f['id'], body={
 						'title':f['id'],
-						'parents' : [{ 'id' : self.config['asset_root'] }]
+						'parents' : [{ 'id' : self.config['asset_root'] }],
+						'description' : f['title']
 					}).execute()
 				if DEBUG: print "CLONE RESULT:\n%s" % clone
 				
@@ -119,13 +120,19 @@ class InformaCamDriveClient(InformaCamClient):
 			self.absorb(self.getFile(file))
 		
 		self.files_manifest.append(file)
-		super(InformaCamDriveClient, self).absorb(self.getFileName(file))
+		super(InformaCamDriveClient, self).absorb(self.getFileName(file), file_alias=self.getFileAlias(file))
 	
 	def getFileName(self, file):
 		if type(file) is str or type(file) is unicode:
 			return self.getFileName(self.getFile(file))
 					
 		return str(file['title'])
+
+	def getFileAlias(self, file):
+		if type(file) is str or type(file) is unicode:
+			return self.getFileAlias(self.getFile(file))
+					
+		return str(file['description'])
 	
 	def getFileNameHash(self, file):
 		if type(file) is str or type(file) is unicode:

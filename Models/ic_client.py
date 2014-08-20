@@ -25,14 +25,19 @@ class InformaCamClient(object):
 		self.last_update_for_mode = self.absorbed_log[mode]
 		self.usable = True
 	
-	def absorb(self, file):
+	def absorb(self, file, file_alias=None):
 		this_dir = os.getcwd()
 		os.chdir(ANNEX_DIR)
 
 		with settings(warn_only=True):
 			if hasattr(self, 'tag'):
-				local("git annex metadata %s --json --set=importer_source=%s" % (file, self.tag))
+				local("git-annex metadata %s --json --set=importer_source=%s" % (file, self.tag))
 
+			if file_alias is not None:
+				local("git-annex metadata %s --json --set=uv_file_alias=%s" % (file, file_alias))
+
+			local("git-annex add %s" % file)
+			local("git-annex sync")
 			local(".git/hooks/uv-post-netcat %s" % file)
 		
 		os.chdir(this_dir)
