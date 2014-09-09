@@ -4,7 +4,8 @@
 			"match" : [
 				"genealogy.createdOnDevice", "alias", "public_hash",
 				"data.exif.make", "data.exif.model", "genealogy.hashes",
-				"data.sensorCapture.sensorPlayback.visibleWifiNetworks"
+				"data.sensorCapture.sensorPlayback.visibleWifiNetworks",
+				"file_alias"
 			],
 			"range" : ["genealogy.dateCreated"],
 			"geo_distance" : [
