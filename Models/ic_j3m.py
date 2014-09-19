@@ -1,8 +1,7 @@
-from Models.uv_object import UnveillanceObject
-from vars import EmitSentinel
+from Models.uv_els_stub import UnveillanceELSStub
 from conf import DEBUG
 
-class InformaCamJ3M(UnveillanceObject):
+class InformaCamJ3M(UnveillanceELSStub):
 	def __init__(self, _id=None, inflate=None):
 		if inflate is not None:
 			from lib.Core.Utils.funcs import generateMD5Hash
@@ -16,4 +15,4 @@ class InformaCamJ3M(UnveillanceObject):
 			inflate['uv_doc_type'] = UV_DOC_TYPE['DOC']
 			inflate['mime_type'] = MIME_TYPES['j3m']
 			
-		super(InformaCamJ3M, self).__init__(_id=_id, inflate=inflate)
+		super(InformaCamJ3M, self).__init__("ic_j3m", _id=_id, inflate=inflate)
