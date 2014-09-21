@@ -1,19 +1,16 @@
 {
 	"QUERY_KEYS" : {
-		"must" : {
-			"match" : [
-				"genealogy.createdOnDevice", "alias", "public_hash",
-				"data.exif.make", "data.exif.model", "genealogy.hashes",
-				"data.sensorCapture.sensorPlayback.visibleWifiNetworks",
-				"file_alias"
-			],
-			"range" : ["genealogy.dateCreated"],
-			"geo_distance" : [
-				"data.exif.location", 
-				"data.sensorCapture.sensorPlayback.gps_coords",
-				"data.sensorCapture.sensorPlayback.regionLocationData.gps_coords"
-			]
-		}
+		"filter_terms" : [
+			"genealogy.createdOnDevice", "alias", "public_hash",
+			"data.exif.make", "data.exif.model", "genealogy.hashes",
+			"data.sensorCapture.sensorPlayback.visibleWifiNetworks"
+		],
+		"range" : ["genealogy.dateCreated"],
+		"geo_distance" : [
+			"data.exif.location", 
+			"data.sensorCapture.sensorPlayback.gps_coords",
+			"data.sensorCapture.sensorPlayback.regionLocationData.gps_coords"
+		]
 	},
 	"QUERY_DEFAULTS" : {
 		"IC_J3M" : {
@@ -130,6 +127,7 @@
 			}
 		]
 	},
+	"ELASTICSEARCH_SOURCE_EXCLUDES" : ["data"],
 	"ELASTICSEARCH_MAPPING_STUBS" : {
 		"ic_j3m" : {
 			"_parent" : {
@@ -219,6 +217,10 @@
 					"type" : "string",
 					"index" : "not_analyzed",
 					"store" : true
+				},
+				"media_id" : {
+					"type" : "string",
+					"index" : "not_analyzed"
 				}
 			}
 		}
