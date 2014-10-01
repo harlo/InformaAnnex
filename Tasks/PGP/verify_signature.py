@@ -55,6 +55,7 @@ def verifySignature(task):
 			media.j3m_verified = True
 	
 	media.save()
+	media.addCompletedTask(task.task_path)
 	
 	task_path = None
 	

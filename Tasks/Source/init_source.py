@@ -74,6 +74,7 @@ def initSource(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	source.addCompletedTask(task.task_path)
 	from time import sleep
 	sleep(10)
 	

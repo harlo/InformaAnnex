@@ -96,8 +96,8 @@ def unpackJ3MLog(uv_task):
 	j3m_log.original_mime_type = j3m_log.mime_type
 	j3m_log.mime_type = MIME_TYPES['j3mlog']
 
-	print "\n\n*********BEFORE SAVING:\n%s\n\n*******" % j3m_log.emit()	
 	j3m_log.save()
+	j3m_log.addCompletedTask(uv_task.task_path)
 	
 	if next_task is not None: next_task.run()
 	

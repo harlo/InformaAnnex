@@ -100,6 +100,9 @@ def unzipAndEvaluateArchive(uv_task):
 	'''
 		could be either a source or a j3mlog at this point.
 	'''
+
+	media.addCompletedTask(uv_task.task_path)
+
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	new_task = UnveillanceTask(inflate=next_task)
 	new_task.run()

@@ -221,6 +221,7 @@ def massageJ3M(task):
 		media.j3m_id = j3m._id
 		print "NEW J3M ID TO SAVE: %s " % media.j3m_id
 		media.save()
+		media.addCompletedTask(task.task_path)
 		
 		new_task = UnveillanceTask(inflate={
 			'task_path' : "J3M.verify_visual_content.verifyVisualContent",

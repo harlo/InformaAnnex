@@ -68,6 +68,8 @@ def j3mify(uv_task):
 		media.addAsset(
 			j3m, "j3m.json", tags=[ASSET_TAGS['J3M']], description="The j3m itself."), 
 		None, sync=True)
+
+	media.addCompletedTask(uv_task.task_path)
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	next_task = UnveillanceTask(inflate={

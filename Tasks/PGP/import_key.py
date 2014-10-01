@@ -68,6 +68,8 @@ def importKey(task):
 		source.original_mime_type = source.mime_type
 		source.mime_type = MIME_TYPES['pgp']	
 		source.save()
+
+		source.addCompletedTask(task.task_path)
 	
 		'''
 		from lib.Worker.Models.uv_task import UnveillanceTask

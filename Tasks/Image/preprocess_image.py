@@ -149,5 +149,6 @@ def preprocessImage(task):
 		})
 		new_task.run()
 
+	image.addCompletedTask(task.task_path)
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

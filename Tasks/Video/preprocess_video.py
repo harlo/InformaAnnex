@@ -68,6 +68,8 @@ def makeDerivatives(task):
 				video.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']],
 					description="j3m data extracted from mkv stream")
 
+			video.addCompletedTask(task.task_path)
+
 			if task_path is not None:
 				new_task['task_path'] = task_path					
 				new_task = UnveillanceTask(inflate=new_task)

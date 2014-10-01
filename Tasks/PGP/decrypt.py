@@ -66,6 +66,8 @@ def decrypt(uv_task):
 				task_path = MIME_TYPE_TASKS[mime_type][0]
 			except Exception as e:
 				print e
+
+	media.addCompletedTask(uv_task.task_path)
 	
 	if task_path is not None:
 		from lib.Worker.Models.uv_task import UnveillanceTask

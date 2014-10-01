@@ -71,5 +71,6 @@ def makeDerivatives(task):
 		p = Popen(cmd)
 		p.wait()
 	
+	video.addCompletedTask(task.task_path)
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

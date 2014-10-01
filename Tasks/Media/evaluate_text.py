@@ -57,6 +57,8 @@ def evaluateTextFile(task):
 			task_args.update({
 				'pgp_file' : ".data/%s/%s.pgp" % (media._id, media.file_name)
 			})
+
+		media.addCompletedTask(task.task_path)
 		
 		if task_path is not None:
 			from lib.Worker.Models.uv_task import UnveillanceTask
