@@ -1,7 +1,7 @@
 import os, json, gnupg, re, yaml, gzip
 import xml.etree.ElementTree as ET
 
-from sys import exit
+from sys import exit, argv
 from base64 import b64encode
 from cStringIO import StringIO
 from time import sleep
@@ -103,8 +103,7 @@ def validateRepository(repo=None):
 		
 		if repo is None or repo['source'] != r: continue
 		
-		if 'asset_id' not in repo.keys(): repo['asset_id'] = prompt("Repo Asset ID:")
-		if 'asset_root' not in repo.keys(): repo['asset_root'] = prompt("Asset Root:")
+		if 'asset_id' not in repo.keys(): repo['asset_id'] = prompt("Repo Asset ID: ")
 
 		if 'absorbed_log' not in repo.keys(): 
 			repo['absorbed_log'] = os.path.join(os.getcwd(), "lib", 
@@ -143,7 +142,7 @@ def validateRepository(repo=None):
 				if 'client_secret' not in repo.keys():
 					repo['client_secret'] = prompt("Client Secret:")
 				
-				if 'auth_storage' is not in repo.keys():
+				if 'auth_storage' not in repo.keys():
 					from oauth2client.client import OAuth2WebServerFlow
 					from oauth2client.file import Storage
 					
@@ -158,37 +157,47 @@ def validateRepository(repo=None):
 					print "URL: %s" % flow.step1_get_authorize_url()
 					credentials = flow.step2_exchange(prompt("Code: "))
 					Storage(repo['auth_storage']).put(credentials)
+
+			repo['public_url'] = "https://drive.google.com"
 			
 		elif r == "globaleaks":
-			if 'context_gus' not in repo.keys():
-				repo['context_gus'] = prompt("Context Gus:")
-						
+			repo['context_gus'] = repo['asset_id']
+
 			if 'host' not in repo.keys():
-				repo['host'] = prompt("Globaleaks Host:")
+				repo['host'] = prompt("Globaleaks Host: ")
 			
 			if 'asset_root' not in repo.keys():
-				repo['asset_root'] = prompt("Globaleaks Asset Root:")
+				repo['asset_root'] = prompt("Globaleaks Asset Root: ")
 			
 			if 'user' not in repo.keys():
-				repo['user'] = prompt("Globaleaks User:")
+				repo['user'] = prompt("Globaleaks User: ")
 			
 			if 'public_url' not in repo.keys():
-				repo['public_url'] = prompt("Globaleaks Public URL:")
+				repo['public_url'] = prompt("Globaleaks Public URL: ")
+
+			if 'identity_file' not in repo.keys():
+				repo['identity_file'] = prompt("Globaleaks Identity File (for ssh/rsync): ")
 		
 		return repo
 
 if __name__ == "__main__":
 	base_dir = os.getcwd()
 	conf_dir = os.path.join(base_dir, "lib", "Annex", "conf")
-	
-	sec_config = {}
+
 	print "****************************************"
-	try:
-		with open(os.path.join(conf_dir, "unveillance.secrets.json"), 'rb') as SECRETS:
-			sec_config.update(json.loads(SECRETS.read()))
-	except Exception as e:
-		print "no config file found.  please fill out the following:"
-	
+
+	sec_config = {}
+	if len(argv) == 2 and len(argv[1]) > 3:
+		try:
+			with open(argv[1], 'rb') as CONFIG: sec_config.update(json.loads(CONFIG.read()))
+		except Exception as e: pass
+	else:
+		try:
+			with open(os.path.join(conf_dir, "unveillance.secrets.json"), 'rb') as SECRETS:
+				sec_config.update(json.loads(SECRETS.read()))
+		except Exception as e:
+			print "no config file found.  please fill out the following:"
+		
 	if 'org_name' not in sec_config.keys():
 		sec_config['org_name'] = prompt("Organization Name:")
 	
@@ -279,7 +288,18 @@ if __name__ == "__main__":
 				FORMS.write(json.dumps(initForms(forms)))
 			
 			break
-	
+
+	try:
+		ictd['repositories'] = [{
+			'source' : sec_config['repo']['source'],
+			'asset_id' : sec_config['repo']['asset_id'],
+			'asset_root' : sec_config['repo']['public_url']
+		}]
+
+	except Exception as e:
+		print e
+		pass
+
 	from lib.Annex.conf import ANNEX_DIR
 	with open(os.path.join(ANNEX_DIR, "ictd.json"), 'wb+') as ICTD:
 		ICTD.write(json.dumps(ictd))

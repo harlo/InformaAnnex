@@ -9,12 +9,25 @@ sleep 2
 cd $THIS_DIR
 
 sudo apt-get install -y pkg-config libx264-dev make g++ python-setuptools yasm ant openjdk-7-jdk lsof
-cd lib/FFmpeg
-./configure
-make
-sudo make install
 
-sudo apt-get install -y ffmpeg2theora
+FFMPEG_VERSION=`which ffmpeg`
+if [[ $FFMPEG_VERSION == *bin/ffmpeg ]]
+then
+	echo "ffmpeg already installed.  Skipping"
+else
+	cd lib/FFmpeg
+	./configure
+	make
+	sudo make install
+fi
+
+FFMPEG2_VERSION=`which ffmpeg2theora`
+if [[ $FFMPEG2_VERSION == *bin/ffmpeg2theora ]]
+then
+	echo "ffmpeg2theora already installed.  Skipping"
+else
+	sudo apt-get install -y ffmpeg2theora
+fi
 
 JPEG_TOOLS_DIR=$THIS_DIR/lib/jpeg
 cd $JPEG_TOOLS_DIR/jpeg-redaction/lib
@@ -41,7 +54,7 @@ ls -la
 
 cd $THIS_DIR
 pip install --upgrade -r requirements.txt
-python setup.py
+python setup.py $1
 
 cd lib/Annex
 chmod 0400 conf/*
