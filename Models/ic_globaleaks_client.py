@@ -3,6 +3,7 @@ import os, io
 from fabric.api import *
 from fabric.operations import get
 from time import sleep, time, mktime, strptime
+from datetime import datetime
 
 from lib.Worker.Models.ic_client import InformaCamClient
 from conf import DEBUG, ANNEX_DIR, getSecrets
@@ -11,8 +12,10 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 	def __init__(self, mode=None):
 		credentials = None
 		super(InformaCamGlobaleaksClient, self).__init__(mode, tag="globaleaks")
-		
-		# set env variables for gl
+
+		if credentials is None:
+			self.usable = False
+			return
 		
 	def getAssetMimeType(self, file):
 		with cd(self.config['asset_root']):

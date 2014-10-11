@@ -8,7 +8,7 @@ sleep 2
 
 cd $THIS_DIR
 
-sudo apt-get install -y pkg-config libx264-dev make g++ python-setuptools yasm ant openjdk-7-jdk lsof
+sudo apt-get install -y zip unzip pkg-config libx264-dev make g++ python-setuptools yasm ant openjdk-7-jdk lsof
 
 FFMPEG_VERSION=`which ffmpeg`
 if [[ $FFMPEG_VERSION == *bin/ffmpeg ]]

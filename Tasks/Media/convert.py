@@ -38,7 +38,7 @@ def unzipAndEvaluateArchive(uv_task):
 	from fabric.context_managers import hide
 	from conf import ANNEX_DIR
 	
-	with settings(hide('everything'), warn_only=True):
+	with settings(warn_only=True):
 		this_dir = os.getcwd()
 		os.chdir(ANNEX_DIR)
 		local("unzip -o %s -d %s" % (zip, media.base_path))
