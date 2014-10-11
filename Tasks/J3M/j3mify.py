@@ -3,10 +3,10 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def j3mify(uv_task):
-	task_tag = "J3MIFYING"
+def parse_zipped_j3m(uv_task):
+	task_tag = "PARSING ZIPPED J3M"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "j3mifying asset at %s" % uv_task.doc_id
+	print "parsing zipped j3m asset at %s" % uv_task.doc_id
 	uv_task.setStatus(412)
 	
 	import os
@@ -32,7 +32,6 @@ def j3mify(uv_task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	
 	from cStringIO import StringIO
 	from lib.Worker.Utils.funcs import getFileType, unGzipBinary
 	from vars import MIME_TYPES
@@ -48,10 +47,64 @@ def j3mify(uv_task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 
+	asset_path = "j3m_raw.json"
+	media.addAsset(j3m, asset_path, as_literal=False)
+
+	from lib.Worker.Models.uv_task import UnveillanceTask
+	next_task = UnveillanceTask(inflate={
+		'task_path' : "J3M.j3mify.j3mify",
+		'doc_id' : media._id,
+		'queue' : uv_task.queue,
+		'j3m_name' : asset_path
+	})
+	next_task.run()
+	
+	uv_task.finish()
+	print "\n\n************** %s [END] ******************\n" % task_tag
+
+@celery_app.task
+def j3mify(uv_task):
+	task_tag = "J3MIFYING"
+	print "\n\n************** %s [START] ******************\n" % task_tag
+	print "j3mifying asset at %s" % uv_task.doc_id
+	uv_task.setStatus(412)
+	
+	import os
+	from lib.Worker.Models.uv_document import UnveillanceDocument
+	
+	from conf import DEBUG
+	from vars import ASSET_TAGS
+	
+	media = UnveillanceDocument(_id=uv_task.doc_id)
+	if media is None:
+		print "DOC IS NONE"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
+
+	j3m = media.loadAsset(uv_task.j3m_name)
+	if j3m is None:
+		print "J3M IS NONE"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
+	
 	import json
+	print "JSSON HERE:"
+	j3m = json.loads(j3m)
+	print type(j3m)
+
+	if type(j3m) in [str, unicode]:
+		try:
+			j3m = json.loads(j3m)
+		except Exception as e:
+			print "\n\n************** J3MIFYING [WARN] ******************\n"
+			print e
+			print "json loads twice fail."
+
+	print type(j3m)
+	print j3m.keys()
 
 	try:
-		j3m_sig = json.loads(j3m)['signature']
+		j3m_sig = j3m['signature']
 	except KeyError as e:
 		print "NO SIGNATURE TO EXTRACT"
 		print "\n\n************** J3MIFYING [ERROR] ******************\n"
@@ -60,13 +113,8 @@ def j3mify(uv_task):
 	media.addAsset(j3m_sig, "j3m.sig", tags=[ASSET_TAGS['SIG']],
 		description="The j3m's signature")
 	
-	front_sentinel = "{\"j3m\":"
-	back_sentinel = ",\"signature\":"
-	
-	j3m = j3m[len(front_sentinel) : j3m.rindex(back_sentinel)]
 	media.addFile(
-		media.addAsset(
-			j3m, "j3m.json", tags=[ASSET_TAGS['J3M']], description="The j3m itself."), 
+		media.addAsset(j3m['j3m'], "j3m.json", tags=[ASSET_TAGS['J3M']], description="The j3m itself.", as_literal=False), 
 		None, sync=True)
 
 	media.addCompletedTask(uv_task.task_path)

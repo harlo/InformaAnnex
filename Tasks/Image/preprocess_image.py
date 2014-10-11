@@ -72,53 +72,67 @@ def preprocessImage(task):
 	tiff_txt.close()
 	del tiff_txt
 	
-	if ic_j3m_txt is not None:		
-		from lib.Core.Utils.funcs import b64decode
-		un_b64 = b64decode(ic_j3m_txt.getvalue())
-		
-		ic_j3m_txt.close()
-		del ic_j3m_txt
-		
-		if un_b64 is not None:	
-			from lib.Worker.Utils.funcs import getFileType
-			from vars import MIME_TYPES, MIME_TYPE_MAP
-		
-			un_b64_mime_type = getFileType(un_b64, as_buffer=True)
-			if un_b64_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-				if DEBUG: print "MIME TYPE: %s" % un_b64_mime_type
-				
-				asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
-				image.addAsset(un_b64, asset_path)
-				
-				if DEBUG: print "\n\nPGP KEY FILE PATH: %s\n\n" % asset_path
-				
-				new_task = { 'doc_id' : image._id, 'queue' : task.queue }
-				task_path = None
-				
-				gz = image.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']], 
-					description="j3m data extracted from obscura marker")
-				
-				if un_b64_mime_type == MIME_TYPES['pgp']:
-					task_path = "PGP.decrypt.decrypt"
-					new_task.update({
-						'pgp_file' : os.path.join(image.base_path, asset_path),
-						'next_task_path' : "J3M.j3mify.j3mify",
-						'save_as' : gz
-					})
-					
-					was_encrypted = True
-					
-				elif un_b64_mime_type == MIME_TYPES['gzip']:
-					task_path = "J3M.j3mify.j3mify"
+	if ic_j3m_txt is not None:
+		from lib.Worker.Utils.funcs import getFileType
+		from vars import MIME_TYPES, MIME_TYPE_MAP
 
-				if task_path is not None:
-					new_task['task_path'] = task_path					
-					new_task = UnveillanceTask(inflate=new_task)
-					new_task.run()
-		
-				from time import sleep
-				sleep(10)
+		new_task = { 'doc_id' : image._id, 'queue' : task.queue }
+		task_path = None
 
+		ic_j3m_txt = ic_j3m_txt.getvalue()
+		ic_j3m_txt_mime_type = getFileType(ic_j3m_txt, as_buffer=True)
+
+		if ic_j3m_txt_mime_type != MIME_TYPES['json']:
+			from lib.Core.Utils.funcs import b64decode
+			un_b64 = b64decode(ic_j3m_txt)
+		
+			if un_b64 is not None:	
+				un_b64_mime_type = getFileType(un_b64, as_buffer=True)
+				if un_b64_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
+					if DEBUG: print "MIME TYPE: %s" % un_b64_mime_type
+					
+					asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
+					image.addAsset(un_b64, asset_path)
+					
+					if DEBUG: print "\n\nPGP KEY FILE PATH: %s\n\n" % asset_path
+					
+					gz = image.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']], 
+						description="j3m data extracted from obscura marker")
+					
+					if un_b64_mime_type == MIME_TYPES['pgp']:
+						task_path = "PGP.decrypt.decrypt"
+						new_task.update({
+							'pgp_file' : os.path.join(image.base_path, asset_path),
+							'next_task_path' : "J3M.j3mify.parse_zipped_j3m",
+							'save_as' : gz
+						})
+						
+						was_encrypted = True
+						
+					elif un_b64_mime_type == MIME_TYPES['gzip']:
+						task_path = "J3M.j3mify.parse_zipped_j3m"
+					
+		else:
+			asset_path = image.addAsset(ic_j3m_txt, "j3m_raw.json", as_literal=False)
+
+			task_path = "J3M.j3mify.j3mify"
+			new_task.update({
+				'j3m_name' : "j3m_raw.json"
+			})
+
+		if task_path is not None:
+			new_task['task_path'] = task_path					
+			new_task = UnveillanceTask(inflate=new_task)
+			new_task.run()
+
+		from time import sleep
+		sleep(10)
+
+	else:
+		print "NO IC J3M TEXT FOUND???"
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
+
+	'''
 	new_task = UnveillanceTask(inflate={
 		'task_path' : "Documents.compile_metadata.compileMetadata",
 		'doc_id' : image._id,
@@ -132,6 +146,7 @@ def preprocessImage(task):
 		'md_file' : "file_metadata.txt"
 	})
 	new_task.run()
+	'''
 
 	from vars import UPLOAD_RESTRICTION
 	
@@ -141,6 +156,7 @@ def preprocessImage(task):
 		print "could not get metadata for uv_restriction"
 		print e
 
+	'''
 	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
 		new_task = UnveillanceTask(inflate={
 			'task_path' : "Image.make_derivatives.makeDerivatives",
@@ -148,6 +164,7 @@ def preprocessImage(task):
 			'queue' : task.queue
 		})
 		new_task.run()
+	'''
 
 	image.addCompletedTask(task.task_path)
 	task.finish()
