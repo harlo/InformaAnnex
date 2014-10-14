@@ -16,11 +16,13 @@ def initSource(task):
 	if source is None:
 		print "SOURCE DOCUMENT DOES NOT EXIST"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	if not hasattr(task, "assets"):
 		print "NO ASSETS FOR THIS SOURCE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	import re, json, os
@@ -72,6 +74,7 @@ def initSource(task):
 	if next_task is None:
 		print "NO PUBLIC KEY FOR SOURCE."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	source.addCompletedTask(task.task_path)

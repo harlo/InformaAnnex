@@ -18,6 +18,7 @@ def unzipAndEvaluateArchive(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	if hasattr(uv_task, "file_name"):
@@ -30,6 +31,7 @@ def unzipAndEvaluateArchive(uv_task):
 	if zip is None or not media.getFile(zip):
 		print "THERE IS NO ZIP HERE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	import os
@@ -48,8 +50,10 @@ def unzipAndEvaluateArchive(uv_task):
 			unzipped_files = local("ls %s" % media.base_path, capture=True).splitlines()
 		except Exception as e:
 			print e
-			print "Could not find any unzipped files in %s" % media.base_path
+			err_msg = "Could not find any unzipped files in %s" % media.base_path
+			print err_msg
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			uv_task.fail(status=412, message=err_msg)
 			return
 			
 		os.chdir(this_dir)
@@ -95,6 +99,7 @@ def unzipAndEvaluateArchive(uv_task):
 	if next_task['task_path'] is None:
 		print "NO DECERNABLE TASK PATH"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 		
 	'''
@@ -126,12 +131,14 @@ def audioConvert(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	audio = media.getAsset(task.src_file, return_only="path")
 	if audio is None:
 		print "SOURCE FILE IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	from subprocess import Popen

@@ -18,6 +18,7 @@ def sanitizeWebUpload(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 
 	media.from_web_upload = True

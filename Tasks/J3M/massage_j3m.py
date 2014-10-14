@@ -19,6 +19,7 @@ def massageJ3M(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	if hasattr(task, "j3m_name"):
@@ -30,6 +31,7 @@ def massageJ3M(task):
 	if j3m is None:
 		print "J3M IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	from json import loads
@@ -39,6 +41,7 @@ def massageJ3M(task):
 	except Exception as e:
 		print "J3M IS INVALID"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail(status=412)
 		return
 	
 	try:

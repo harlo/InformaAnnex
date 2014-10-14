@@ -18,12 +18,14 @@ def verifyVisualContent(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	j3m = media.loadAsset("j3m.json")
 	if j3m is None:
 		print "NO J3M AT ALL"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	import os

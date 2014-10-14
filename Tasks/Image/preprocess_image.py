@@ -18,6 +18,7 @@ def preprocessImage(task):
 	if image is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	import os
@@ -27,6 +28,7 @@ def preprocessImage(task):
 	except Exception as e:
 		if DEBUG: print "NO J3M DIR! %s" % e
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	import re

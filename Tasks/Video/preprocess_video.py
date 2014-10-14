@@ -18,6 +18,7 @@ def makeDerivatives(task):
 	if video is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 		
 	asset_path = video.addAsset(None, "j3m_raw.txt")
@@ -25,6 +26,7 @@ def makeDerivatives(task):
 	if asset_path is None:
 		print "COULD NOT MAKE ASSET"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	was_encrypted = False

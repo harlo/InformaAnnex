@@ -15,18 +15,22 @@ def decrypt(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	if not media.getFile(uv_task.pgp_file):
 		print "NO PGP FILE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	from conf import getSecrets
 	gpg_pwd = getSecrets("gpg_pwd")
 	if gpg_pwd is None:
-		print "NO PASSPHRASE TO DECRYPT"
+		err_msg = "NO PASSPHRASE TO DECRYPT"
+		print err_msg
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail(message=err_msg)
 		return
 	
 	# save as task.pgp_file.decrypted or whatever	

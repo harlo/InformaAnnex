@@ -18,6 +18,7 @@ def makeDerivatives(uv_task):
 	if image is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	import os
@@ -43,6 +44,7 @@ def makeDerivatives(uv_task):
 		if asset_path is None:
 			print "COULD NOT INIT THIS ASSET"
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			uv_task.fail()
 			return
 			
 		cmd = ["ffmpeg", "-y", "-i", os.path.join(ANNEX_DIR, image.file_name)]

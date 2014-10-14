@@ -18,6 +18,7 @@ def verifySignature(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	sig = media.getAsset("j3m.sig", return_only="path")
@@ -26,8 +27,10 @@ def verifySignature(task):
 	if DEBUG: print "j3m path: %s, sig path: %s" % (j3m, sig)
 	
 	if sig is None or j3m is None:
-		print "NO SIGNATURE or J3M"
+		err_msg = "NO SIGNATURE or J3M"
+		print err_msg
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail(message=err_msg)
 		return
 	
 	import gnupg
@@ -38,6 +41,7 @@ def verifySignature(task):
 	except Exception as e:
 		print "ERROR INITING GPG"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	media.j3m_verified = False

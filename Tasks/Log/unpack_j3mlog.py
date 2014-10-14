@@ -14,12 +14,14 @@ def unpackJ3MLog(uv_task):
 	if not hasattr(uv_task, "assets"):
 		print "NO ASSETS FOR THIS J3M LOG"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	j3m_log = InformaCamLog(_id=uv_task.doc_id)
 	if j3m_log is None:
 		print "J3M LOG DOES NOT EXIST"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	if DEBUG:

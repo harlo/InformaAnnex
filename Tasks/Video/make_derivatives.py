@@ -18,6 +18,7 @@ def makeDerivatives(task):
 	if video is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	import os
@@ -37,6 +38,7 @@ def makeDerivatives(task):
 		if asset_path is None:
 			print "COULD NOT INIT THIS ASSET"
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			task.fail()
 			return
 			
 		if res is not None:

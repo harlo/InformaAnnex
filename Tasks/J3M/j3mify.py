@@ -19,6 +19,7 @@ def parse_zipped_j3m(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	from conf import ANNEX_DIR
@@ -30,6 +31,7 @@ def parse_zipped_j3m(uv_task):
 	if not media.getFile(j3m_name):
 		print "NO J3M.GZ at %s" % j3m_name
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	from cStringIO import StringIO
@@ -45,6 +47,7 @@ def parse_zipped_j3m(uv_task):
 	if j3m is None or getFileType(j3m, as_buffer=True) != MIME_TYPES['json']:
 		print "THIS IS NOT A J3M (type %s)" % j3m_type
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail(status=412)
 		return
 
 	asset_path = "j3m_raw.json"
@@ -79,12 +82,14 @@ def j3mify(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 
 	j3m = media.loadAsset(uv_task.j3m_name)
 	if j3m is None:
 		print "J3M IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	import json
@@ -108,6 +113,7 @@ def j3mify(uv_task):
 	except KeyError as e:
 		print "NO SIGNATURE TO EXTRACT"
 		print "\n\n************** J3MIFYING [ERROR] ******************\n"
+		uv_task.fail(status=412)
 		return
 	
 	media.addAsset(j3m_sig, "j3m.sig", tags=[ASSET_TAGS['SIG']],
