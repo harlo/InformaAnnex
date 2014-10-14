@@ -7,7 +7,7 @@ def makeDerivatives(uv_task):
 	task_tag = "DERIVATIVES: IMAGE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.ic_image import InformaCamImage
 	

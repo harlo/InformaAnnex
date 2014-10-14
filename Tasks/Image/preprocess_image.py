@@ -7,7 +7,7 @@ def preprocessImage(task):
 	task_tag = "IMAGE PREPROCESSING"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 		
 	from lib.Worker.Models.ic_image import InformaCamImage
 	

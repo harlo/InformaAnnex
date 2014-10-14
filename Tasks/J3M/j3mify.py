@@ -7,7 +7,7 @@ def parse_zipped_j3m(uv_task):
 	task_tag = "PARSING ZIPPED J3M"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "parsing zipped j3m asset at %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 	
 	import os
 	from lib.Worker.Models.uv_document import UnveillanceDocument
@@ -70,7 +70,7 @@ def j3mify(uv_task):
 	task_tag = "J3MIFYING"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "j3mifying asset at %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 	
 	import os
 	from lib.Worker.Models.uv_document import UnveillanceDocument

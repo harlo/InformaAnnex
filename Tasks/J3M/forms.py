@@ -7,7 +7,7 @@ def initForms(task):
 	task_tag = "INITTING FORMS"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "initing forms at form folder"
-	task.setStatus(412)
+	task.setStatus(302)
 	
 	import os, re, json
 	import xml.etree.ElementTree as ET

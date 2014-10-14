@@ -7,7 +7,7 @@ def unzipAndEvaluateArchive(uv_task):
 	task_tag = "UNZIPPING FILE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "unzipping and evaluating %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
@@ -120,7 +120,7 @@ def audioConvert(task):
 	task_tag = "CONVERTING SOME AUDIO"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	

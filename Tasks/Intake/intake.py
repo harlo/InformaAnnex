@@ -6,7 +6,7 @@ from vars import CELERY_STUB as celery_app
 def doIntake(task):
 	task_tag = "INTAKE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	task.setStatus(412)
+	task.setStatus(302)
 
 	next_mode = None
 	if not hasattr(task, 'mode'):

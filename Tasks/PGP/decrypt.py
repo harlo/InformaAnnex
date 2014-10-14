@@ -7,7 +7,7 @@ def decrypt(uv_task):
 	task_tag = "DECRYPTING"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "decrypting pgp blob for %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 		

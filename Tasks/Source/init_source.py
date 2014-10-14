@@ -6,7 +6,7 @@ from vars import CELERY_STUB as celery_app
 def initSource(task):
 	task_tag = "INITING SOURCE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	task.setStatus(412)
+	task.setStatus(302)
 	
 	from lib.Worker.Models.ic_source import InformaCamSource
 	from conf import DEBUG

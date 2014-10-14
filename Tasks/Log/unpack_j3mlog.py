@@ -6,7 +6,7 @@ from vars import CELERY_STUB as celery_app
 def unpackJ3MLog(uv_task):
 	task_tag = "UNPACKING J3M LOG"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.ic_j3mlog import InformaCamLog
 	from conf import DEBUG

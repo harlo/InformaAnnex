@@ -7,7 +7,7 @@ def importKey(task):
 	task_tag = "IMPORTING KEY"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "importing gpg key for %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 	
 	import os
 	from conf import DEBUG, ANNEX_DIR
