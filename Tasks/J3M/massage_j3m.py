@@ -8,7 +8,7 @@ def massageJ3M(task):
 	
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "massaging j3m at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
@@ -19,6 +19,7 @@ def massageJ3M(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	if hasattr(task, "j3m_name"):
@@ -30,6 +31,7 @@ def massageJ3M(task):
 	if j3m is None:
 		print "J3M IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	from json import loads
@@ -39,6 +41,7 @@ def massageJ3M(task):
 	except Exception as e:
 		print "J3M IS INVALID"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	try:

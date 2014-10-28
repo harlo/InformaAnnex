@@ -7,7 +7,7 @@ def makeDerivatives(task):
 	task_tag = "PREPROCESSING VIDEO"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 		
 	from lib.Worker.Models.ic_video import InformaCamVideo
 	
@@ -18,6 +18,7 @@ def makeDerivatives(task):
 	if video is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 		
 	asset_path = video.addAsset(None, "j3m_raw.txt")
@@ -25,6 +26,7 @@ def makeDerivatives(task):
 	if asset_path is None:
 		print "COULD NOT MAKE ASSET"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	was_encrypted = False

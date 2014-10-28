@@ -7,7 +7,7 @@ def verifySignature(task):
 	task_tag = "VERIFYING SIGNATURE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
@@ -18,6 +18,7 @@ def verifySignature(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	sig = media.getAsset("j3m.sig", return_only="path")
@@ -28,6 +29,7 @@ def verifySignature(task):
 	if sig is None or j3m is None:
 		print "NO SIGNATURE or J3M"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	import gnupg
@@ -38,6 +40,7 @@ def verifySignature(task):
 	except Exception as e:
 		print "ERROR INITING GPG"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	media.j3m_verified = False

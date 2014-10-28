@@ -6,7 +6,7 @@ from vars import CELERY_STUB as celery_app
 def doIntake(task):
 	task_tag = "INTAKE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	task.setStatus(412)
+	task.setStatus(302)
 
 	next_mode = None
 	if not hasattr(task, 'mode'):
@@ -19,6 +19,7 @@ def doIntake(task):
 	if mode not in ['sources', 'submissions']:
 		print "No acceptable mode"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 
 	repo = None
@@ -32,6 +33,7 @@ def doIntake(task):
 	if repo is None:
 		print "No repos to query."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 
 	client = None
@@ -43,6 +45,7 @@ def doIntake(task):
 		except Exception as e:
 			print "ERROR Creating client:\n%s" % e
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			task.fail()
 			return
 	
 	elif repo['source'] == "globaleaks":
@@ -52,6 +55,7 @@ def doIntake(task):
 	if not client.usable:
 		print "Client invalid."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 
 	from time import sleep

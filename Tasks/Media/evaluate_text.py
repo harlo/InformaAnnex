@@ -7,7 +7,7 @@ def evaluateTextFile(task):
 	task_tag = "EVALUATING TEXT FILE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "evaluating text file at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
@@ -18,11 +18,13 @@ def evaluateTextFile(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	if not media.queryFile(media.file_name):
 		print "NO DOCUMENT CONTENT"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	content = media.loadFile(media.file_name)
@@ -44,6 +46,7 @@ def evaluateTextFile(task):
 		if un_b64_mime_type not in [MIME_TYPES['pgp'], MIME_TYPES['wildcard']]:
 			print "MIME TYPE NOT USABLE"
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			task.fail()
 			return
 		
 		media.addAsset(un_b64, "%s.pgp" % media.file_name, description="un-b64'ed pgp asset")

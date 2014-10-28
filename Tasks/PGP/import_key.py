@@ -7,7 +7,7 @@ def importKey(task):
 	task_tag = "IMPORTING KEY"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "importing gpg key for %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 	
 	import os
 	from conf import DEBUG, ANNEX_DIR
@@ -22,6 +22,7 @@ def importKey(task):
 		if source is None:
 			print "DOC IS NONE"
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			task.fail()
 			return
 	
 		try:
@@ -34,6 +35,7 @@ def importKey(task):
 			if not os.path.exists(pgp_key):
 				print "STILL COULD NOT FIND A PGP KEY AT %s" % pgp_key
 				print "\n\n************** %s [ERROR] ******************\n" % task_tag
+				task.fail()
 				return
 			
 	elif hasattr(task, "pgp_file"):
@@ -42,6 +44,7 @@ def importKey(task):
 	if pgp_key is None:
 		print "NO PGP KEY HERE."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	import gnupg, re
@@ -59,6 +62,7 @@ def importKey(task):
 		print "THIS FINGERPRINT IS FUCKING NULL WHAT DO YOU THINK THIS IS?"
 		print e
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	if source is not None:

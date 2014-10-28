@@ -7,7 +7,7 @@ def decrypt(uv_task):
 	task_tag = "DECRYPTING"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "decrypting pgp blob for %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 		
@@ -15,11 +15,13 @@ def decrypt(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	if not media.getFile(uv_task.pgp_file):
 		print "NO PGP FILE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	from conf import getSecrets
@@ -27,6 +29,7 @@ def decrypt(uv_task):
 	if gpg_pwd is None:
 		print "NO PASSPHRASE TO DECRYPT"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	# save as task.pgp_file.decrypted or whatever	

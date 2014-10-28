@@ -6,7 +6,7 @@ from vars import CELERY_STUB as celery_app
 def unpackJ3MLog(uv_task):
 	task_tag = "UNPACKING J3M LOG"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.ic_j3mlog import InformaCamLog
 	from conf import DEBUG
@@ -14,12 +14,14 @@ def unpackJ3MLog(uv_task):
 	if not hasattr(uv_task, "assets"):
 		print "NO ASSETS FOR THIS J3M LOG"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	j3m_log = InformaCamLog(_id=uv_task.doc_id)
 	if j3m_log is None:
 		print "J3M LOG DOES NOT EXIST"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	if DEBUG:

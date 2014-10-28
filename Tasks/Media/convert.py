@@ -7,7 +7,7 @@ def unzipAndEvaluateArchive(uv_task):
 	task_tag = "UNZIPPING FILE"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "unzipping and evaluating %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
@@ -18,6 +18,7 @@ def unzipAndEvaluateArchive(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	if hasattr(uv_task, "file_name"):
@@ -30,6 +31,7 @@ def unzipAndEvaluateArchive(uv_task):
 	if zip is None or not media.getFile(zip):
 		print "THERE IS NO ZIP HERE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	import os
@@ -50,6 +52,7 @@ def unzipAndEvaluateArchive(uv_task):
 			print e
 			print "Could not find any unzipped files in %s" % media.base_path
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			uv_task.fail()
 			return
 			
 		os.chdir(this_dir)
@@ -95,6 +98,7 @@ def unzipAndEvaluateArchive(uv_task):
 	if next_task['task_path'] is None:
 		print "NO DECERNABLE TASK PATH"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 		
 	'''
@@ -115,7 +119,7 @@ def audioConvert(task):
 	task_tag = "CONVERTING SOME AUDIO"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
@@ -126,12 +130,14 @@ def audioConvert(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	audio = media.getAsset(task.src_file, return_only="path")
 	if audio is None:
 		print "SOURCE FILE IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 	
 	from subprocess import Popen

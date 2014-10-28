@@ -7,7 +7,7 @@ def sanitizeWebUpload(uv_task):
 	task_tag = "SANITIZE WEB UPLOAD"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
@@ -18,6 +18,7 @@ def sanitizeWebUpload(uv_task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
 		return
 
 	media.from_web_upload = True
