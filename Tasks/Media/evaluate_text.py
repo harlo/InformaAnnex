@@ -44,9 +44,10 @@ def evaluateTextFile(task):
 		if DEBUG: print "MIME TYPE: %s" % un_b64_mime_type
 		
 		if un_b64_mime_type not in [MIME_TYPES['pgp'], MIME_TYPES['wildcard']]:
-			print "MIME TYPE NOT USABLE"
+			err_msg = "MIME TYPE NOT USABLE"
+			print err_msg
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
-			task.fail()
+			task.fail(status=412, message=err_msg)
 			return
 		
 		media.addAsset(un_b64, "%s.pgp" % media.file_name, description="un-b64'ed pgp asset")

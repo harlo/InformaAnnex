@@ -41,7 +41,7 @@ def massageJ3M(task):
 	except Exception as e:
 		print "J3M IS INVALID"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.fail()
+		task.fail(status=412)
 		return
 	
 	try:

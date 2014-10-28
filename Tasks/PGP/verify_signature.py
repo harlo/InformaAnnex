@@ -27,9 +27,10 @@ def verifySignature(task):
 	if DEBUG: print "j3m path: %s, sig path: %s" % (j3m, sig)
 	
 	if sig is None or j3m is None:
-		print "NO SIGNATURE or J3M"
+		err_msg = "NO SIGNATURE or J3M"
+		print err_msg
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.fail()
+		task.fail(message=err_msg)
 		return
 	
 	import gnupg

@@ -50,9 +50,10 @@ def unzipAndEvaluateArchive(uv_task):
 			unzipped_files = local("ls %s" % media.base_path, capture=True).splitlines()
 		except Exception as e:
 			print e
-			print "Could not find any unzipped files in %s" % media.base_path
+			err_msg = "Could not find any unzipped files in %s" % media.base_path
+			print err_msg
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
-			uv_task.fail()
+			uv_task.fail(status=412, message=err_msg)
 			return
 			
 		os.chdir(this_dir)
@@ -130,7 +131,7 @@ def audioConvert(task):
 	if media is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.fail()
+		task.fail()
 		return
 	
 	audio = media.getAsset(task.src_file, return_only="path")

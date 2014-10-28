@@ -47,7 +47,7 @@ def parse_zipped_j3m(uv_task):
 	if j3m is None or getFileType(j3m, as_buffer=True) != MIME_TYPES['json']:
 		print "THIS IS NOT A J3M (type %s)" % j3m_type
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.fail()
+		uv_task.fail(status=412)
 		return
 
 	asset_path = "j3m_raw.json"
@@ -113,7 +113,7 @@ def j3mify(uv_task):
 	except KeyError as e:
 		print "NO SIGNATURE TO EXTRACT"
 		print "\n\n************** J3MIFYING [ERROR] ******************\n"
-		uv_task.fail()
+		uv_task.fail(status=412)
 		return
 	
 	media.addAsset(j3m_sig, "j3m.sig", tags=[ASSET_TAGS['SIG']],

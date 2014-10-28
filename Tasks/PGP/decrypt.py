@@ -27,9 +27,10 @@ def decrypt(uv_task):
 	from conf import getSecrets
 	gpg_pwd = getSecrets("gpg_pwd")
 	if gpg_pwd is None:
-		print "NO PASSPHRASE TO DECRYPT"
+		err_msg = "NO PASSPHRASE TO DECRYPT"
+		print err_msg
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.fail()
+		uv_task.fail(message=err_msg)
 		return
 	
 	# save as task.pgp_file.decrypted or whatever	
