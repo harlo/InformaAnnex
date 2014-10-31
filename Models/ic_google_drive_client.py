@@ -93,7 +93,7 @@ class InformaCamDriveClient(InformaCamClient):
 			
 			if omit_absorbed and self.isAbsorbed(f['id'], f['mimeType']): continue
 			
-			if DEBUG: print "INTAKE: %s (mime type: %s)" % (f['id'], f['mimeType'])
+			if DEBUG: print "\nINTAKE: %s (mime type: %s)\n" % (f['id'], f['mimeType'])
 			
 			try:
 				clone = self.service.files().copy(
@@ -104,11 +104,7 @@ class InformaCamDriveClient(InformaCamClient):
 					}).execute()
 				if DEBUG: print "CLONE RESULT:\n%s" % clone
 				
-				assets.append(clone['id'])
-				
-				# XXX: TESTING...
-				#if self.mode == "submissions": break
-				
+				assets.append(clone['id'])				
 				sleep(2)
 			except errors.HttpError as e:
 				print e

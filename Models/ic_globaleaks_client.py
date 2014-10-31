@@ -97,8 +97,9 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 				date_created = mktime(strptime(date_str, "%Y-%m-%d %H:%M:%S")) * 1000
 
 				if DEBUG:
+					print "\nFILENAME: %s" % l['file_name']
 					print "MIME TYPE: %s" % mime_type
-					print "DATE CREATED: %d" % date_created
+					print "DATE CREATED: %d\n" % date_created
 
 				if omit_absorbed and self.isAbsorbed(date_created, mime_type):
 					continue
@@ -119,7 +120,6 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 		elif self.mode == "submissions":
 			if mime_type == self.mime_types['zip']: return True
 		
-		print "LAST ABSORBED: %d" % self.absorbed_log[self.mode]
 		if date_created <= self.absorbed_log[self.mode]: return True
 
 		return False
