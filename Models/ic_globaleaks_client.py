@@ -2,6 +2,7 @@ import os, io, re
 
 from fabric.api import *
 from fabric.operations import get
+from fabric.context_managers import hide
 from time import sleep, time, mktime, strptime
 from datetime import datetime
 
@@ -11,7 +12,7 @@ from conf import DEBUG, ANNEX_DIR, getSecrets
 def listGlobaleakAssets(asset_root, identity_file):
 	cmd = "ssh -f -i %s %s 'sudo ls -la --full-time %s'" % (identity_file, env.host_string, asset_root)
 	
-	with settings(warn_only=True):
+	with settings(hide('everything'), warn_only=True):
 		try:
 			asset_list = [a for a in local(cmd, capture=True).splitlines() if re.match(r'^total', a) is None and re.match(r'^drwx', a) is None]
 			return [{'file_name' : a[-1], 'date_created' : " ".join([a[-4], a[-3]])} for a in [[b for b in c.split(' ') if b != ''] for c in asset_list]]
@@ -25,7 +26,7 @@ def getGlobaleaksAssetMimeType(file, asset_root, identity_file):
 	cmd = "ssh -f -i %s %s 'sudo file --mime-type %s'" % (identity_file, 
 		env.host_string, os.path.join(asset_root, file))
 
-	with settings(warn_only=True):
+	with settings(hide('everything'), warn_only=True):
 		try:
 			return local(cmd, capture=True).split(": ")[-1]
 		except Exception as e:
@@ -41,7 +42,7 @@ def downloadGlobaleaksAsset(file, asset_root, identity_file):
 		os.path.join('home', u), "%(u)s:%(u)s" % ({'u' : u}),
 		os.path.join('home', u, file))
 
-	with settings(warn_only=True):
+	with settings(hide('everything'), warn_only=True):
 		local(cmd, capture=True)
 		
 		content = io.BytesIO()		
@@ -106,7 +107,10 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 
 			self.updateLog()
 
-		print assets
+		if DEBUG:
+			print "ASSETS TO BE ABSORBED FOR MODE %s" % self.mode
+			print assets
+
 		return assets
 	
 	def isAbsorbed(self, date_created, mime_type):

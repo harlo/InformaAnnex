@@ -86,6 +86,8 @@ class InformaCamDriveClient(InformaCamClient):
 			if DEBUG: print e
 			return False
 		
+		self.last_update_for_mode = time() * 1000
+
 		for f in files['items']:
 			if f['mimeType'] not in self.mime_types.itervalues() or f['mimeType'] == self.mime_types['folder']: continue
 			
@@ -112,7 +114,13 @@ class InformaCamDriveClient(InformaCamClient):
 				print e
 				continue
 		
-		self.last_update_for_mode = time() * 1000
+		
+		self.updateLog()
+		
+		if DEBUG:
+			print "ASSETS TO BE ABSORBED FOR MODE %s" % self.mode
+			print assets
+
 		return assets
 	
 	def isAbsorbed(self, file_name, mime_type):
