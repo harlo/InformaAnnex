@@ -95,8 +95,9 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 				date_str = l['date_created'].split(".")[0]
 				date_created = mktime(strptime(date_str, "%Y-%m-%d %H:%M:%S")) * 1000
 
-				print "MIME TYPE: %s" % mime_type
-				print "DATE CREATED: %d" % date_created
+				if DEBUG:
+					print "MIME TYPE: %s" % mime_type
+					print "DATE CREATED: %d" % date_created
 
 				if omit_absorbed and self.isAbsorbed(date_created, mime_type):
 					continue
