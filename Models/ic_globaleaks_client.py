@@ -85,6 +85,7 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 
 		if list_gl_assets.error is None and list_gl_assets.output is not None:
 			self.last_update_for_mode = time() * 1000
+			self.updateLog()
 
 			# get mime types
 			for l in list_gl_assets.output:

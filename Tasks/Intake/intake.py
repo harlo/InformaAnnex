@@ -6,10 +6,6 @@ from vars import CELERY_STUB as celery_app
 def doIntake(task):
 	task_tag = "INTAKE"
 
-	if hasattr(task, "locked") and task.locked:
-		"\n\n************** %s [LOCKED!] ******************\n" % task_tag
-		return
-
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	task.setStatus(302)
 
@@ -65,7 +61,6 @@ def doIntake(task):
 
 	from time import sleep
 	
-	task.lock()
 	try:
 		for asset in client.listAssets(omit_absorbed=True):
 			mime_type = client.getAssetMimeType(asset)
@@ -80,7 +75,6 @@ def doIntake(task):
 		print e
 
 	client.updateLog()
-	task.unlock()
 
 	if next_mode is not None:
 		task.mode = next_mode
