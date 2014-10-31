@@ -5,6 +5,11 @@ from vars import CELERY_STUB as celery_app
 @celery_app.task
 def doIntake(task):
 	task_tag = "INTAKE"
+
+	if hasattr(task, "locked") and task.locked:
+		"\n\n************** %s [LOCKED!] ******************\n" % task_tag
+		return
+
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	task.setStatus(302)
 
@@ -74,8 +79,8 @@ def doIntake(task):
 	except TypeError as e:
 		print e
 
-	task.unlock()
 	client.updateLog()
+	task.unlock()
 
 	if next_mode is not None:
 		task.mode = next_mode
