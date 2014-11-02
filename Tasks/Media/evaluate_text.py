@@ -61,9 +61,7 @@ def evaluateTextFile(task):
 
 		message_sentinel = "-----BEGIN PGP MESSAGE-----"
 		if un_b64[0:len(message_sentinel)] == message_sentinel:
-			task.task_queue.append("PGP.decrypt.decrypt")
-			task.save()
-
+			task.put_next("PGP.decrypt.decrypt")
 			task.routeNext(inflate={
 				'pgp_file' : ".data/%s/%s.pgp" % (media._id, media.file_name)
 			})

@@ -65,8 +65,7 @@ def decrypt(uv_task):
 			print "mime type (%s) usable..." % mime_type
 						
 			try:
-				uv_task.task_queue += MIME_TYPE_TASKS[mime_type]
-				uv_task.save()
+				uv_task.put_next(MIME_TYPE_TASKS[mime_type])
 			except Exception as e:
 				print e
 

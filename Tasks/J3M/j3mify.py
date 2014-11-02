@@ -53,9 +53,7 @@ def parse_zipped_j3m(uv_task):
 	asset_path = "j3m_raw.json"
 	media.addAsset(j3m, asset_path, as_literal=False)
 
-	uv_task.task_queue.append("J3M.j3mify.j3mify")
-	uv_task.save()
-
+	uv_task.put_next("J3M.j3mify.j3mify")
 	uv_task.routeNext(inflate={'j3m_name' : asset_path})	
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
@@ -82,9 +80,10 @@ def j3mify(uv_task):
 
 	j3m = media.loadAsset(uv_task.j3m_name)
 	if j3m is None:
-		print "J3M IS NONE"
+		error_message = "J3M IS NONE"
+		print error_message
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.fail()
+		uv_task.fail(message=error_message)
 		return
 	
 	import json
@@ -119,6 +118,9 @@ def j3mify(uv_task):
 		None, sync=True)
 
 	media.addCompletedTask(uv_task.task_path)
+	
+	uv_task.j3m_name = "j3m.json"
+	uv_task.save()
 	
 	uv_task.routeNext()	
 	uv_task.finish()

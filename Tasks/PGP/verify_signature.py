@@ -58,16 +58,14 @@ def verifySignature(task):
 			media.loadAsset("j3m.json"))['genealogy']['createdOnDevice'])
 		
 		if verified.fingerprint.upper() == supplied_fingerprint.upper():
-			if DEBUG: print "SIGNATURE VALID for %s" % verified.fingerprint.upper()
+			if DEBUG:
+				print "SIGNATURE VALID for %s" % verified.fingerprint.upper()
+			
 			media.j3m_verified = True
 	
 	media.save()
 	media.addCompletedTask(task.task_path)
-		
-	if hasattr(media, "j3m_id"):
-		task.task_queue.remove("J3M.massage_j3m.massageJ3M")
-		task.save()
-
+	
 	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

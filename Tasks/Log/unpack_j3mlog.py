@@ -53,7 +53,6 @@ def unpackJ3MLog(uv_task):
 				print "\n\n************** %s [WARN] ******************\n" % task_tag
 				continue
 
-			j3m_log.addCompletedTask(uv_task.task_path)
 			uv_task.routeNext(inflate={'j3m_name' : j3m_name})
 			
 		elif re.match(r'.+\.(?:jpg|mkv)$', asset):

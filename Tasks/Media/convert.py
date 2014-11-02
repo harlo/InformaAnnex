@@ -84,20 +84,18 @@ def unzipAndEvaluateArchive(uv_task):
 				
 				if uv_task.get_next() is None:
 					if facet == "source":
-						uv_task.task_queue += [
+						uv_task.put_next([
 							"Source.init_source.initSource"
-						]						]
+						])
 
 					elif facet == "j3mlog":
-						uv_task.task_queue += [
+						uv_task.put_next([
 							"Log.unpack_j3mlog.unpackJ3MLog",
 							"J3M.j3mify.j3mify",
 							"PGP.verify_signature.verifySignature",
 							"J3M.massage_j3m.massageJ3M",
 							"J3M.verify_visual_content.verifyVisualContent"
-						]
-
-					uv_task.save()
+						])
 	
 	media.addCompletedTask(uv_task.task_path)
 

@@ -17,7 +17,9 @@ def initForms(task):
 	for root, _, files in os.walk(os.path.join(CONF_ROOT, "forms")):
 		for f in files:
 			if re.match(r'.xml$', f):
-				if DEBUG: print "ADDING FORM %s" % os.path.join(root, f)
+				if DEBUG:
+					print "ADDING FORM %s" % os.path.join(root, f)
+				
 				forms.append(os.path.join(root, f))
 	
 	jr_sentinel = "jr:itext('"
@@ -82,10 +84,9 @@ def initForms(task):
 					break
 		
 			parse['forms'].append(mapping)
-			if DEBUG: print mapping
-	
-	if DEBUG: print parse
-	
+			if DEBUG:
+				print mapping	
+
 	m = open(os.path.join(CONF_ROOT, "forms", "forms.json"), 'wb+')
 	m.write(json.dumps(parse))
 	m.close()

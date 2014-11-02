@@ -49,15 +49,15 @@ def preprocessImage(task):
 	data = p.stdout.readline()
 	while data:
 		data = data.strip()
-		
-		if DEBUG: print data
-		
+				
 		if re.match(r'^file: .*', data): pass
 		elif re.match(r'^Generic APPn .*', data): pass
 		elif re.match(r'^Component.*', data): pass
 		elif re.match(r'^Didn\'t find .*', data): pass
 		elif re.match(r'^Got obscura marker.*', data):
-			if DEBUG: print "\n\nWE ALSO HAVE J3M DATA\n\n"
+			if DEBUG:
+				print "\n\nWE ALSO HAVE J3M DATA\n\n"
+			
 			obscura_marker_found = True
 			ic_j3m_txt = StringIO()
 		else:
@@ -89,21 +89,23 @@ def preprocessImage(task):
 			if un_b64 is not None:	
 				un_b64_mime_type = getFileType(un_b64, as_buffer=True)
 				if un_b64_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-					if DEBUG: print "MIME TYPE: %s" % un_b64_mime_type
+					if DEBUG:
+						print "MIME TYPE: %s" % un_b64_mime_type
 					
 					asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
 					image.addAsset(un_b64, asset_path)
 					
-					if DEBUG: print "\n\nPGP KEY FILE PATH: %s\n\n" % asset_path
+					if DEBUG:
+						print "\n\nPGP KEY FILE PATH: %s\n\n" % asset_path
 					
 					gz = image.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']], 
 						description="j3m data extracted from obscura marker")
 					
 					if un_b64_mime_type == MIME_TYPES['pgp']:
-						task.task_queue += [
+						task.put_next([
 							"PGP.decrypt.decrypt",
 							"J3M.j3mify.parse_zipped_j3m"
-						]
+						])
 
 						inflate.update({
 							'pgp_file' : os.path.join(image.base_path, asset_path),
@@ -113,12 +115,12 @@ def preprocessImage(task):
 						was_encrypted = True
 						
 					elif un_b64_mime_type == MIME_TYPES['gzip']:
-						task.task_queue.append("J3M.j3mify.parse_zipped_j3m")
+						task.put_next("J3M.j3mify.parse_zipped_j3m")
 					
 		else:
 			asset_path = image.addAsset(ic_j3m_txt, "j3m_raw.json", as_literal=False)
 
-			task.task_queue.append("J3M.j3mify.j3mify")
+			task.put_next("J3M.j3mify.j3mify")
 			inflate.update({
 				'j3m_name' : "j3m_raw.json"
 			})
@@ -152,9 +154,7 @@ def preprocessImage(task):
 		print e
 
 	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
-		task.task_queue.append("Image.make_derivatives.makeDerivatives")
-
-	task.save()
+		task.put_next("Image.make_derivatives.makeDerivatives")
 
 	image.addCompletedTask(task.task_path)
 	

@@ -85,5 +85,6 @@ def importKey(task):
 		next_task.run()
 		'''
 	
+	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
