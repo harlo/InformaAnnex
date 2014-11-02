@@ -1,10 +1,47 @@
-import json, copy, os
+import json, copy, os, threading
 from time import time, sleep
-from fabric.api import local, settings
+from fabric.api import local, settings, execute
 
 from lib.Core.Utils.funcs import generateMD5Hash
 from vars import MIME_TYPES, MIME_TYPE_MAP
-from conf import getSecrets, ANNEX_DIR
+from conf import getSecrets, ANNEX_DIR, DEBUG
+
+class InformaCamClientFabricProcess(threading.Thread):
+	def __init__(self, func, host, user, key_filename, port=None, args=None, op_dir=None):
+		self.func = func
+		self.args = {} if args is None else args
+
+		self.output = None
+		self.error = None
+
+		port_prefix = ""
+		if port is not None and port != 22:
+			port_prefix += ":%d" % port
+
+		self.args.update({
+			'hosts' : ["%s@%s%s" % (user, host, port_prefix)]
+		})
+
+		if op_dir is not None:
+			self.return_dir = os.getcwd()
+			os.chdir(op_dir)
+
+		threading.Thread.__init__(self)
+		self.start()
+
+	def run(self):
+		try:
+			res = execute(self.func, **self.args)
+			self.output = res[res.keys()[0]]
+		except Exception as e:
+			if DEBUG:
+				print "THERE WAS AN ERROR EXECUTING THIS THREAD:"
+				print e
+				self.error = e
+
+		if hasattr(self, 'return_dir'):
+			os.chdir(self.return_dir)
+
 
 class InformaCamClient(object):
 	def __init__(self, mode, tag=None):

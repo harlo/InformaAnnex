@@ -5,6 +5,7 @@ from vars import CELERY_STUB as celery_app
 @celery_app.task
 def doIntake(task):
 	task_tag = "INTAKE"
+
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	task.setStatus(302)
 
@@ -60,7 +61,6 @@ def doIntake(task):
 
 	from time import sleep
 	
-	task.lock()
 	try:
 		for asset in client.listAssets(omit_absorbed=True):
 			mime_type = client.getAssetMimeType(asset)
@@ -73,9 +73,6 @@ def doIntake(task):
 
 	except TypeError as e:
 		print e
-
-	task.unlock()
-	client.updateLog()
 
 	if next_mode is not None:
 		task.mode = next_mode

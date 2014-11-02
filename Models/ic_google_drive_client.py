@@ -88,12 +88,14 @@ class InformaCamDriveClient(InformaCamClient):
 			if DEBUG: print e
 			return False
 		
+		self.last_update_for_mode = time() * 1000
+
 		for f in files['items']:
 			if f['mimeType'] not in self.mime_types.itervalues() or f['mimeType'] == self.mime_types['folder']: continue
 			
 			if omit_absorbed and self.isAbsorbed(f['id'], f['mimeType']): continue
 			
-			if DEBUG: print "INTAKE: %s (mime type: %s)" % (f['id'], f['mimeType'])
+			if DEBUG: print "\nINTAKE: %s (mime type: %s)\n" % (f['id'], f['mimeType'])
 			
 			try:
 				clone = self.service.files().copy(
@@ -104,17 +106,19 @@ class InformaCamDriveClient(InformaCamClient):
 					}).execute()
 				if DEBUG: print "CLONE RESULT:\n%s" % clone
 				
-				assets.append(clone['id'])
-				
-				# XXX: TESTING...
-				#if self.mode == "submissions": break
-				
+				assets.append(clone['id'])				
 				sleep(2)
 			except errors.HttpError as e:
 				print e
 				continue
 		
-		self.last_update_for_mode = time() * 1000
+		
+		self.updateLog()
+		
+		if DEBUG:
+			print "ASSETS TO BE ABSORBED FOR MODE %s" % self.mode
+			print assets
+
 		return assets
 	
 	def isAbsorbed(self, file_name, mime_type):
