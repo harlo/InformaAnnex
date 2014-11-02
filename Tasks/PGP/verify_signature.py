@@ -24,7 +24,8 @@ def verifySignature(task):
 	sig = media.getAsset("j3m.sig", return_only="path")
 	j3m = media.getAsset("j3m.json", return_only="path")
 	
-	if DEBUG: print "j3m path: %s, sig path: %s" % (j3m, sig)
+	if DEBUG:
+		print "j3m path: %s, sig path: %s" % (j3m, sig)
 	
 	if sig is None or j3m is None:
 		err_msg = "NO SIGNATURE or J3M"
@@ -46,7 +47,9 @@ def verifySignature(task):
 	
 	media.j3m_verified = False
 	verified = gpg.verify_file(j3m, sig_file=sig)
-	if DEBUG: print "verified fingerprint: %s" % verified.fingerprint
+	
+	if DEBUG:
+		print "verified fingerprint: %s" % verified.fingerprint
 	
 	if verified.fingerprint is not None:
 		from json import loads
@@ -60,21 +63,11 @@ def verifySignature(task):
 	
 	media.save()
 	media.addCompletedTask(task.task_path)
-	
-	task_path = None
-	
-	if not hasattr(media, "j3m_id"):
-		task_path = "J3M.massage_j3m.massageJ3M"
-	else:
-		task_path = "J3M.verify_visual_content.verifyVisualContent"
-	
-	if task_path is not None:
-		from lib.Worker.Models.uv_task import UnveillanceTask
-		new_task = UnveillanceTask(inflate={
-			'task_path' : "J3M.massage_j3m.massageJ3M",
-			'doc_id' : media._id,
-			'queue' : task.queue})
-		new_task.run()
-	
+		
+	if hasattr(media, "j3m_id"):
+		task.task_queue.remove("J3M.massage_j3m.massageJ3M")
+		task.save()
+
+	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

@@ -58,7 +58,8 @@ def unzipAndEvaluateArchive(uv_task):
 			
 		os.chdir(this_dir)
 	
-	if DEBUG: print "UNZIPPED FILES: \n%s" % unzipped_files
+	if DEBUG:
+		print "UNZIPPED FILES: \n%s" % unzipped_files
 	
 	ZIPPED_ASSET_EXPECTED_NAMES = {
 		'source' : [
@@ -72,31 +73,35 @@ def unzipAndEvaluateArchive(uv_task):
 		]
 	}
 	
-	next_task = { 
-		'queue' : uv_task.queue,
-		'assets' : [],
-		'task_path' : None,
-		'doc_id' : media._id
-	}
+	assets = []
 	
 	import re
 	for facet, names in ZIPPED_ASSET_EXPECTED_NAMES.iteritems():
 		for file in unzipped_files:
 			matches = [n for n in names if re.match(n, file) is not None]
 			if len(matches) > 0:
-				next_task['assets'].append(file)
+				assets.append(file)
 				
-				if next_task['task_path'] is None:
+				if uv_task.get_next() is None:
 					if facet == "source":
-						next_task.update({
-							'task_path' : "Source.init_source.initSource"
-						})
+						uv_task.task_queue += [
+							"Source.init_source.initSource"
+						]						]
+
 					elif facet == "j3mlog":
-						next_task.update({
-							'task_path' : "Log.unpack_j3mlog.unpackJ3MLog"
-						})
+						uv_task.task_queue += [
+							"Log.unpack_j3mlog.unpackJ3MLog",
+							"J3M.j3mify.j3mify",
+							"PGP.verify_signature.verifySignature",
+							"J3M.massage_j3m.massageJ3M",
+							"J3M.verify_visual_content.verifyVisualContent"
+						]
+
+					uv_task.save()
 	
-	if next_task['task_path'] is None:
+	media.addCompletedTask(uv_task.task_path)
+
+	if uv_task.get_next() is None:
 		print "NO DECERNABLE TASK PATH"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		uv_task.fail()
@@ -106,12 +111,7 @@ def unzipAndEvaluateArchive(uv_task):
 		could be either a source or a j3mlog at this point.
 	'''
 
-	media.addCompletedTask(uv_task.task_path)
-
-	from lib.Worker.Models.uv_task import UnveillanceTask
-	new_task = UnveillanceTask(inflate=next_task)
-	new_task.run()
-	
+	uv_task.routeNext(inflate={'assets' : assets})
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
 

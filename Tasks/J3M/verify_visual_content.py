@@ -67,5 +67,7 @@ def verifyVisualContent(task):
 	
 	media.save()
 	media.addCompletedTask(task.task_path)
+
+	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

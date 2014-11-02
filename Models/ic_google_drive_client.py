@@ -69,8 +69,10 @@ class InformaCamDriveClient(InformaCamClient):
 				print "OUR MODE: %s" % mode
 				print self.mode
 		
-			except errors.HttpError as e:
-				if DEBUG: print e
+			except Exception as e:
+				if DEBUG:
+					print type(e)
+					print e
 	
 	def getAssetMimeType(self, fileId):
 		return self.getFile(fileId)['mimeType']

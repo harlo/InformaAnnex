@@ -24,11 +24,6 @@ def unpackJ3MLog(uv_task):
 		uv_task.fail()
 		return
 	
-	if DEBUG:
-		print "\n\nTHIS IS THE J3M IN QUESTION\n"
-		print j3m_log.emit()
-		print "\n\n"
-	
 	import re, os
 	from fabric.api import local, settings
 	from fabric.context_managers import hide
@@ -36,22 +31,15 @@ def unpackJ3MLog(uv_task):
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	from conf import ANNEX_DIR
-	
-	next_task = None
+	from vars import MIME_TYPES
+
+	j3m_log.original_mime_type = j3m_log.mime_type
+	j3m_log.mime_type = MIME_TYPES['j3mlog']
+	j3m_log.save()
+
 	for asset in uv_task.assets:
-		print "J3M LOG ASSET: %s" % asset
-		attachment = None
-		
 		if re.match(r'log.j3m(?:\.json)?', asset):
 			# is the j3m
-			if DEBUG:
-				print "\n\n*************SAVING ASSET TO J3M (asset %s)" % asset
-				for key in j3m_log.emit().keys():
-					print key
-					print type(getattr(j3m_log, key))
-					print "\n"
-				print "\n\n"
-			
 			try:	
 				j3m_name = j3m_log.addAsset(None, asset)
 			except Exception as e:
@@ -64,13 +52,9 @@ def unpackJ3MLog(uv_task):
 				print "COULD NOT ADD J3M."
 				print "\n\n************** %s [WARN] ******************\n" % task_tag
 				continue
-			
-			next_task = UnveillanceTask(inflate={
-				'task_path' : "J3M.j3mify.j3mify",
-				'doc_id' : j3m_log._id,
-				'queue' : uv_task.queue,
-				'j3m_name' : j3m_name
-			})
+
+			j3m_log.addCompletedTask(uv_task.task_path)
+			uv_task.routeNext(inflate={'j3m_name' : j3m_name})
 			
 		elif re.match(r'.+\.(?:jpg|mkv)$', asset):
 			# is a submission; create it, but move asset over into ANNEX_DIR first
@@ -93,15 +77,6 @@ def unpackJ3MLog(uv_task):
 				'file_name' : asset
 			})
 			media_task.run()
-	
-	from vars import MIME_TYPES
-	j3m_log.original_mime_type = j3m_log.mime_type
-	j3m_log.mime_type = MIME_TYPES['j3mlog']
-
-	j3m_log.save()
-	j3m_log.addCompletedTask(uv_task.task_path)
-	
-	if next_task is not None: next_task.run()
 	
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

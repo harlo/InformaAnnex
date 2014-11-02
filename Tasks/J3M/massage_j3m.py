@@ -177,6 +177,7 @@ def massageJ3M(task):
 												tags=[ASSET_TAGS['A_3GP']],
 												description="3gp audio file from form")
 										
+											'''
 											new_task=UnveillanceTask(inflate={
 												'task_path' : "Media.convert.audioConvert",
 												'doc_id' : media._id,
@@ -185,7 +186,8 @@ def massageJ3M(task):
 												'queue' : task.queue
 											})
 											new_task.run()
-										
+											'''
+											
 											aForms['answerData'][audio] = "audio_%d.wav"
 										except KeyError as e:
 											if DEBUG: print "no key %s" % e
@@ -208,30 +210,27 @@ def massageJ3M(task):
 			print "\n\n************** %s [WARN] ******************\n" % task_tag
 			if DEBUG: print "for some reason, forms.json is not legible?\n%s" % e
 										
-	if media.addAsset(j3m, "j3m.json", as_literal=False) is not False:
-		from lib.Worker.Models.ic_j3m import InformaCamJ3M
-		from lib.Worker.Models.uv_task import UnveillanceTask
-		
-		j3m['media_id'] = media._id
-		if len(searchable_text) > 0:
-			j3m['searchable_text'] = searchable_text
+	if media.addAsset(j3m, "j3m.json", as_literal=False) is False:
+		print "J3M COULD NOT BE ADDED"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
+		return
 
-		j3m = InformaCamJ3M(inflate=j3m)
-		
-		print "\n\n***NEW J3M CREATED***\n\n" 
-		j3m.save()
-		
-		media.j3m_id = j3m._id
-		print "NEW J3M ID TO SAVE: %s " % media.j3m_id
-		media.save()
-		media.addCompletedTask(task.task_path)
-		
-		new_task = UnveillanceTask(inflate={
-			'task_path' : "J3M.verify_visual_content.verifyVisualContent",
-			'doc_id' : media._id,
-			'queue' : task.queue
-		})
-		new_task.run()
+	from lib.Worker.Models.ic_j3m import InformaCamJ3M
 	
+	j3m['media_id'] = media._id
+	if len(searchable_text) > 0:
+		j3m['searchable_text'] = searchable_text
+
+	j3m = InformaCamJ3M(inflate=j3m)
+	
+	print "\n\n***NEW J3M CREATED***\n\n" 
+	j3m.save()
+	
+	media.j3m_id = j3m._id
+	media.save()
+	media.addCompletedTask(task.task_path)
+	
+	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

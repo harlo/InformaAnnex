@@ -50,12 +50,10 @@ def decrypt(uv_task):
 		os.path.join(ANNEX_DIR, save_as), os.path.join(ANNEX_DIR, uv_task.pgp_file)))
 	
 	del gpg_pwd
-		
-	task_path = None
-	if hasattr(uv_task, 'next_task_path'):
-		# if there is a next path tag, do that. or...
-		task_path = uv_task.next_task_path
-	else:
+
+	media.addCompletedTask(uv_task.task_path)
+
+	if uv_task.get_next() is None:
 		# route according to mime type
 		# get mime type of decrypted
 		from vars import MIME_TYPE_TASKS
@@ -67,22 +65,12 @@ def decrypt(uv_task):
 			print "mime type (%s) usable..." % mime_type
 						
 			try:
-				task_path = MIME_TYPE_TASKS[mime_type][0]
+				uv_task.task_queue += MIME_TYPE_TASKS[mime_type]
+				uv_task.save()
 			except Exception as e:
 				print e
 
-	media.addCompletedTask(uv_task.task_path)
 	
-	if task_path is not None:
-		from lib.Worker.Models.uv_task import UnveillanceTask
-		new_task = UnveillanceTask(inflate={
-			'task_path' : task_path,
-			'doc_id' : media._id,
-			'queue' : uv_task.queue,
-			'file_name' : save_as
-		})
-	
-		new_task.run()
-	
+	uv_task.routeNext(inflate={'file_name' : save_as})	
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

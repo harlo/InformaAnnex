@@ -78,11 +78,9 @@ def preprocessImage(task):
 		from lib.Worker.Utils.funcs import getFileType
 		from vars import MIME_TYPES, MIME_TYPE_MAP
 
-		new_task = { 'doc_id' : image._id, 'queue' : task.queue }
-		task_path = None
-
 		ic_j3m_txt = ic_j3m_txt.getvalue()
 		ic_j3m_txt_mime_type = getFileType(ic_j3m_txt, as_buffer=True)
+		inflate = {}
 
 		if ic_j3m_txt_mime_type != MIME_TYPES['json']:
 			from lib.Core.Utils.funcs import b64decode
@@ -102,33 +100,28 @@ def preprocessImage(task):
 						description="j3m data extracted from obscura marker")
 					
 					if un_b64_mime_type == MIME_TYPES['pgp']:
-						task_path = "PGP.decrypt.decrypt"
-						new_task.update({
+						task.task_queue += [
+							"PGP.decrypt.decrypt",
+							"J3M.j3mify.parse_zipped_j3m"
+						]
+
+						inflate.update({
 							'pgp_file' : os.path.join(image.base_path, asset_path),
-							'next_task_path' : "J3M.j3mify.parse_zipped_j3m",
 							'save_as' : gz
 						})
 						
 						was_encrypted = True
 						
 					elif un_b64_mime_type == MIME_TYPES['gzip']:
-						task_path = "J3M.j3mify.parse_zipped_j3m"
+						task.task_queue.append("J3M.j3mify.parse_zipped_j3m")
 					
 		else:
 			asset_path = image.addAsset(ic_j3m_txt, "j3m_raw.json", as_literal=False)
 
-			task_path = "J3M.j3mify.j3mify"
-			new_task.update({
+			task.task_queue.append("J3M.j3mify.j3mify")
+			inflate.update({
 				'j3m_name' : "j3m_raw.json"
 			})
-
-		if task_path is not None:
-			new_task['task_path'] = task_path					
-			new_task = UnveillanceTask(inflate=new_task)
-			new_task.run()
-
-		from time import sleep
-		sleep(10)
 
 	else:
 		print "NO IC J3M TEXT FOUND???"
@@ -158,16 +151,13 @@ def preprocessImage(task):
 		print "could not get metadata for uv_restriction"
 		print e
 
-	'''
 	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
-		new_task = UnveillanceTask(inflate={
-			'task_path' : "Image.make_derivatives.makeDerivatives",
-			'doc_id' : image._id,
-			'queue' : task.queue
-		})
-		new_task.run()
-	'''
+		task.task_queue.append("Image.make_derivatives.makeDerivatives")
+
+	task.save()
 
 	image.addCompletedTask(task.task_path)
+	
+	task.routeNext(inflate=inflate)
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

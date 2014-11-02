@@ -62,5 +62,6 @@ def makeDerivatives(uv_task):
 			image.addFile(asset_path, None, sync=True)
 	
 	image.addCompletedTask(uv_task.task_path)
+	uv_task.routeNext()
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

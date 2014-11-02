@@ -53,15 +53,10 @@ def parse_zipped_j3m(uv_task):
 	asset_path = "j3m_raw.json"
 	media.addAsset(j3m, asset_path, as_literal=False)
 
-	from lib.Worker.Models.uv_task import UnveillanceTask
-	next_task = UnveillanceTask(inflate={
-		'task_path' : "J3M.j3mify.j3mify",
-		'doc_id' : media._id,
-		'queue' : uv_task.queue,
-		'j3m_name' : asset_path
-	})
-	next_task.run()
-	
+	uv_task.task_queue.append("J3M.j3mify.j3mify")
+	uv_task.save()
+
+	uv_task.routeNext(inflate={'j3m_name' : asset_path})	
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
 
@@ -125,13 +120,6 @@ def j3mify(uv_task):
 
 	media.addCompletedTask(uv_task.task_path)
 	
-	from lib.Worker.Models.uv_task import UnveillanceTask
-	next_task = UnveillanceTask(inflate={
-		'task_path' : "PGP.verify_signature.verifySignature",
-		'doc_id' : media._id,
-		'queue' : uv_task.queue
-	})
-	next_task.run()
-	
+	uv_task.routeNext()	
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
