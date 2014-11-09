@@ -89,11 +89,12 @@ Messages from the annex channel will have the following format:
 	{
 		"_id" : "c895e95034a4a37eb73b3e691e176d0b",
 		"status" : 302,
-		"task_path" : "Intake.intake.doIntake",
+		"doc_id" : "b721079641a39621e08741c815467115",
+		"task_path" : "Image.preprocess_image.preprocessImage",
 		"task_type" : "UnveillanceTask"
 	}
 
-The annex channel will also send messages acknowledging the status of the connection.  Developers can do with that what they will.
+The annex channel will also send messages acknowledging the status of the connection.  Developers can do with that what they will.  The `_id` field is the task's ID in our database, the `doc_id` field represents the document in question (where available).
 
 #### Status Codes
 
