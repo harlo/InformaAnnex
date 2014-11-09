@@ -99,11 +99,14 @@ def validateRepository(repo=None):
 	for r in repos:
 		if repo is None:
 			use_repo = prompt("Create %s repository? y or n\n[DEFAULT: n]" % r)
-			if use_repo == "y": repo = { 'source' : r }
+			if use_repo == "y":
+				repo = { 'source' : r }
 		
-		if repo is None or repo['source'] != r: continue
+		if repo is None or repo['source'] != r:
+			continue
 		
-		if 'asset_id' not in repo.keys(): repo['asset_id'] = prompt("Repo Asset ID: ")
+		if 'asset_id' not in repo.keys():
+			repo['asset_id'] = prompt("Repo Asset ID: ")
 
 		if 'absorbed_log' not in repo.keys(): 
 			repo['absorbed_log'] = os.path.join(os.getcwd(), "lib", 
@@ -204,8 +207,11 @@ if __name__ == "__main__":
 	if 'org_details' not in sec_config.keys():
 		sec_config['org_details'] = prompt("Organization Details:")
 	
-	try: repo = sec_config['repo']
-	except KeyError as e: repo = None
+	try:
+		repo = sec_config['repo']
+	except KeyError as e:
+		repo = None
+	
 	sec_config['repo'] = validateRepository(repo=repo)
 	
 	if 'gpg_dir' not in sec_config.keys():
