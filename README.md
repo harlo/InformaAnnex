@@ -1,4 +1,4 @@
-# InformaCam-UnveillanceFrontend
+# InformaCam-UnveillanceAnnex
 
 ## Setup
 
@@ -73,6 +73,10 @@ InformaCam Annex can automatically pull submissions from Google Drive or from Gl
 		"public_url" : "globaleaks instance .onion address",
 		"identity_file" : "identity file to use to address globaleaks server"
 	}
+
+#### Forms
+
+Your forms should be in .xml format, and adhere to the JavaRosa specification.  You can have as many forms as you'd like.  Make sure they are all in an accessible folder somewhere on the host.  You will be prompted for their absolute path during setup and they will be pulled in for use.
 
 ## Messaging
 
