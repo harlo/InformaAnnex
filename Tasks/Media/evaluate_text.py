@@ -40,7 +40,7 @@ def evaluateTextFile(task):
 	# We have removed base 64-ing from the log files...
 	if un_b64 is None:
 		un_b64 = content
-	
+
 	if un_b64 is not None:
 		from lib.Worker.Utils.funcs import getFileType
 		from vars import MIME_TYPES, MIME_TYPE_MAP
