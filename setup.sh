@@ -3,7 +3,7 @@ THIS_DIR=`pwd`
 
 cd lib/Annex
 ./setup.sh $1
-source ~/.bashrc
+source ~/.bash_profile
 sleep 2
 
 cd $THIS_DIR
