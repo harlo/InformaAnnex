@@ -113,7 +113,7 @@ def j3mify(uv_task):
 	except KeyError as e:
 		print "NO SIGNATURE TO EXTRACT"
 		print "\n\n************** J3MIFYING [ERROR] ******************\n"
-		uv_task.fail(status=412)
+		uv_task.fail(status=412, message="No Signature in J3M.")
 		return
 	
 	media.addAsset(j3m_sig, "j3m.sig", tags=[ASSET_TAGS['SIG']],

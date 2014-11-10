@@ -127,7 +127,9 @@ def preprocessImage(task):
 
 	else:
 		print "NO IC J3M TEXT FOUND???"
-		print "\n\n************** %s [WARN] ******************\n" % task_tag
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail(status=412, message="No J3M in image.")
+		return
 
 	'''
 	new_task = UnveillanceTask(inflate={
