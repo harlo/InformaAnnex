@@ -53,7 +53,13 @@ def parse_zipped_j3m(uv_task):
 	asset_path = "j3m_raw.json"
 	media.addAsset(j3m, asset_path, as_literal=False)
 
-	uv_task.put_next("J3M.j3mify.j3mify")
+	uv_task.put_next([
+		"J3M.j3mify.j3mify",
+		"PGP.verify_signature.verifySignature",
+		"J3M.massage_j3m.massageJ3M",
+		"J3M.verify_visual_content.verifyVisualContent"
+	])
+
 	uv_task.routeNext(inflate={'j3m_name' : asset_path})	
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
