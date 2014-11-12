@@ -55,8 +55,8 @@ def parse_zipped_j3m(uv_task):
 
 	uv_task.put_next([
 		"J3M.j3mify.j3mify",
-		"PGP.verify_signature.verifySignature",
 		"J3M.massage_j3m.massageJ3M",
+		"PGP.verify_signature.verifySignature",
 		"J3M.verify_visual_content.verifyVisualContent"
 	])
 
@@ -94,8 +94,15 @@ def j3mify(uv_task):
 	
 	import json
 	print "JSSON HERE:"
-	j3m = json.loads(j3m)
-	print type(j3m)
+	try:
+		print type(j3m)
+		j3m = json.loads(j3m)
+	except Exception as e:
+		print "\n\n************** J3MIFYING [WARN] ******************\n"
+		print e
+		print "json load once fail. trying again"
+
+		print j3m
 
 	if type(j3m) in [str, unicode]:
 		try:
@@ -106,11 +113,10 @@ def j3mify(uv_task):
 			print "json loads twice fail."
 
 	print type(j3m)
-	print j3m.keys()
 
 	try:
 		j3m_sig = j3m['signature']
-	except KeyError as e:
+	except Exception as e:
 		print "NO SIGNATURE TO EXTRACT"
 		print "\n\n************** J3MIFYING [ERROR] ******************\n"
 		uv_task.fail(status=412, message="No Signature in J3M.")

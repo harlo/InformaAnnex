@@ -92,8 +92,8 @@ def unzipAndEvaluateArchive(uv_task):
 						uv_task.put_next([
 							"Log.unpack_j3mlog.unpackJ3MLog",
 							"J3M.j3mify.j3mify",
-							"PGP.verify_signature.verifySignature",
 							"J3M.massage_j3m.massageJ3M",
+							"PGP.verify_signature.verifySignature",
 							"J3M.verify_visual_content.verifyVisualContent"
 						])
 	

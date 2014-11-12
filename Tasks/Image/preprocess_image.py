@@ -120,10 +120,14 @@ def preprocessImage(task):
 		else:
 			asset_path = image.addAsset(ic_j3m_txt, "j3m_raw.json", as_literal=False)
 
-			task.put_next("J3M.j3mify.j3mify")
-			inflate.update({
-				'j3m_name' : "j3m_raw.json"
-			})
+			task.put_next([
+				"J3M.j3mify.j3mify",
+				"J3M.massage_j3m.massageJ3M",
+				"PGP.verify_signature.verifySignature",
+				"J3M.verify_visual_content.verifyVisualContent"
+			])
+			
+			inflate.update({'j3m_name' : "j3m_raw.json"})
 
 	else:
 		print "NO IC J3M TEXT FOUND???"
