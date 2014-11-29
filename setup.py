@@ -320,6 +320,9 @@ if __name__ == "__main__":
 		CONFIG.write("informacam.forms_root: %s\n" % forms_root)
 		CONFIG.write("vars_extras: %s\n" % os.path.join(base_dir, "vars.json"))
 		CONFIG.write("gpg_homedir: %s\n" % sec_config['gpg_dir'])
+
+		with settings(warn_only=True):
+			CONFIG.write("puzzle_diff: %s\n" % local("which puzzle-diff", capture=True))
 	
 	with open(os.path.join(conf_dir, "unveillance.secrets.json"), 'wb+') as SECRETS:
 		SECRETS.write(json.dumps(sec_config))
