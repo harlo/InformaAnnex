@@ -64,9 +64,14 @@ def unpackJ3MLog(uv_task):
 			with settings(hide('everything'), warn_only=True):
 				local("mv %s %s" % (asset_path, ANNEX_DIR))
 			
-			media = UnveillanceDocument(inflate={ 'file_name' : asset })
+			media = UnveillanceDocument(inflate={
+				'file_name' : asset,
+				'attached_to' : j3m_log._id
+			})
 			
-			if not hasattr(j3m_log, "documents"): j3m_log.documents = []
+			if not hasattr(j3m_log, "documents"):
+				j3m_log.documents = []
+			
 			j3m_log.documents.append(media)
 			
 			media_task = UnveillanceTask(inflate={
