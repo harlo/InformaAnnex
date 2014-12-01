@@ -99,7 +99,7 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 				if DEBUG:
 					print "\nFILENAME: %s" % l['file_name']
 					print "MIME TYPE: %s" % mime_type
-					print "DATE CREATED: %d\n" % date_created
+					print "DATE CREATED: %s (%d)\n" % (date_str, date_created)
 
 				if omit_absorbed and self.isAbsorbed(date_created, mime_type):
 					continue
