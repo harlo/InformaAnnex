@@ -53,7 +53,11 @@ def doIntake(task):
 		from lib.Worker.Models.ic_globaleaks_client import InformaCamGlobaleaksClient
 		client = InformaCamGlobaleaksClient(mode=mode)
 
-	if not client.usable:
+	elif repo['source'] == "s3bucket":
+		from lib.Worker.Models.ic_s3_client import InformaCamS3Client
+		client = InformaCamS3Client(mode=mode)
+
+	if client is None or not client.usable:
 		print "Client invalid."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		task.fail()
