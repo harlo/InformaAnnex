@@ -47,7 +47,8 @@ def generate_csv(uv_task):
 		csv_writer.writerow([''].extend(query.keys()))
 
 		for d, doc in enumerate(uv_task.documents):
-			row = [str(d)].extend(['' for k in query.keys()])
+			row = [str(d)]
+			row.extend(['' for k in query.keys()])
 			doc = UnveillanceDocument(_id=doc)
 
 			for k, key in enumerate(query.keys()):
