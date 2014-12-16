@@ -34,6 +34,8 @@ def preprocessImage(task):
 	import re
 	from subprocess import Popen, PIPE
 	from cStringIO import StringIO
+
+	from vars import UPLOAD_RESTRICTION
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	
 	tiff_txt = StringIO()
@@ -129,38 +131,22 @@ def preprocessImage(task):
 			
 			inflate.update({'j3m_name' : "j3m_raw.json"})
 
+		try:
+			upload_restriction = image.getFileMetadata('uv_restriction')
+		except Exception as e:
+			print "could not get metadata for uv_restriction"
+			print e
+
 	else:
 		print "NO IC J3M TEXT FOUND???"
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.fail(status=412, message="No J3M in image.")
-		return
-
-	'''
-	new_task = UnveillanceTask(inflate={
-		'task_path' : "Documents.compile_metadata.compileMetadata",
-		'doc_id' : image._id,
-		'queue' : task.queue,
-		'md_rx' : '%s\s+%s\s+\d+x\d+\s+.+\s+\((.*)\)',
-		'md_namespace' : "Tiff",
-		'md_extras' : {
-			'was_encrypted' : 1.0 if was_encrypted else 0.0,
-			'has_j3m' : 1.0 if obscura_marker_found else 0.0
-		},
-		'md_file' : "file_metadata.txt"
-	})
-	new_task.run()
-	'''
-
-	from vars import UPLOAD_RESTRICTION
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
+		upload_restriction = UPLOAD_RESTRICTION['for_local_use_only']
 	
-	try:
-		upload_restriction = image.getFileMetadata('uv_restriction')
-	except Exception as e:
-		print "could not get metadata for uv_restriction"
-		print e
 
 	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
 		task.put_next("Image.make_derivatives.makeDerivatives")
+
+	task.put_next("Image.get_vector.get_vector")
 
 	image.addCompletedTask(task.task_path)
 	
