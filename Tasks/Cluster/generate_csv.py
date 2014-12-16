@@ -85,7 +85,11 @@ def generate_csv(uv_task):
 						print "now val is"
 						print val
 
-				row[k + 1] = str(val)
+				try:
+					row[k + 1] = str(val)
+				except Exception as e:
+					print e
+					print "\n\n************** %s [WARN] ******************\n" % task_tag
 
 			csv_writer.writerow(row)
 
