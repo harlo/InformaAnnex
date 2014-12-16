@@ -36,7 +36,7 @@ def generate_csv(uv_task):
 		return
 
 	import csv
-	from json import di=umps
+	from json import dumps
 
 	from conf import DEBUG
 	from lib.Worker.Models.uv_document import UnveillanceDocument
