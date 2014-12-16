@@ -42,9 +42,12 @@ def generate_csv(uv_task):
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	from lib.Worker.Models.ic_j3m import InformaCamJ3M
 
+	first_row = ['']
+	first_row.extend(query.keys())
+
 	with open(csv_asset, 'wb+') as C:
 		csv_writer = csv.writer(C, quotechar='|', quoting=csv.QUOTE_MINIMAL)
-		csv_writer.writerow([''].extend(query.keys()))
+		csv_writer.writerow(first_row)
 
 		for d, doc in enumerate(uv_task.documents):
 			row = [str(d)]
