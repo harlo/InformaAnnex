@@ -35,7 +35,7 @@ if [[ $LIBPUZZLE_VERSION == *bin/puzzle-diff ]]
 then
 	echo "puzzle-diff already installed. Skipping"
 else
-	wget lib/libpuzzle-0.11.tar.gz -O http://download.pureftpd.org/pub/pure-ftpd/misc/libpuzzle/releases/libpuzzle-0.11.tar.gz
+	wget -O lib/libpuzzle-0.11.tar.gz http://download.pureftpd.org/pub/pure-ftpd/misc/libpuzzle/releases/libpuzzle-0.11.tar.gz
 	tar -xvzf lib/libpuzzle-0.11.tar.gz -C lib/
 	rm lib/libpuzzle-0.11.tar.gz
 
