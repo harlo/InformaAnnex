@@ -1,8 +1,16 @@
 #! /bin/bash
 THIS_DIR=`pwd`
 
+if [ $# -eq 0 ]
+then
+	echo "{}" > $THIS_DIR/lib/Annex/conf/informa.secrets.json
+	WITH_CONFIG=$THIS_DIR/lib/Annex/conf/informa.secrets.json
+else
+	WITH_CONFIG=$1
+fi
+
 cd lib/Annex
-./setup.sh $1
+./setup.sh $WITH_CONFIG
 source ~/.bash_profile
 sleep 2
 

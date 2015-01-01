@@ -27,7 +27,12 @@ def initForms(forms):
 	for form in [f for f in forms if re.match(r'.*\.xml', f)]:
 		print "evaluating form %s" % form
 		
-		xmldoc = ET.parse(form)
+		try:
+			xmldoc = ET.parse(form)
+		except Exception as e:
+			print "form at %s invalid. (error %s)" % (form, e)
+			continue
+
 		root = xmldoc.getroot()
 		translation = None
 	
