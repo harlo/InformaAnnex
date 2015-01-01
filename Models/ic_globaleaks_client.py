@@ -9,10 +9,18 @@ from datetime import datetime
 from lib.Worker.Models.ic_client import InformaCamClient, InformaCamClientFabricProcess
 from conf import DEBUG, ANNEX_DIR, getSecrets
 
+def translate_host_string_ssh(host_string):
+	hs = host_string.split(":")
+	if len(hs) == 2:
+		return "-p %d %s" % (int(hs[1]), hs[0])
+
+	return host_string
+
 def listGlobaleakAssets(asset_root, identity_file):
-	cmd = "ssh -f -i %s %s 'sudo ls -la --full-time %s'" % (identity_file, env.host_string, asset_root)
+	cmd = "ssh -f -i %s %s 'sudo ls -la --full-time %s'" % (identity_file, 
+		translate_host_string_ssh(env.host_string), asset_root)
 	
-	with settings(hide('everything'), warn_only=True):
+	with settings(warn_only=True):
 		try:
 			asset_list = [a for a in local(cmd, capture=True).splitlines() if re.match(r'^total', a) is None and re.match(r'^drwx', a) is None]
 			return [{'file_name' : a[-1], 'date_created' : " ".join([a[-4], a[-3]])} for a in [[b for b in c.split(' ') if b != ''] for c in asset_list]]
@@ -24,7 +32,7 @@ def listGlobaleakAssets(asset_root, identity_file):
 
 def getGlobaleaksAssetMimeType(file, asset_root, identity_file):
 	cmd = "ssh -f -i %s %s 'sudo file --mime-type %s'" % (identity_file, 
-		env.host_string, os.path.join(asset_root, file))
+		translate_host_string_ssh(env.host_string), os.path.join(asset_root, file))
 
 	with settings(hide('everything'), warn_only=True):
 		try:
@@ -38,7 +46,7 @@ def getGlobaleaksAssetMimeType(file, asset_root, identity_file):
 def downloadGlobaleaksAsset(file, asset_root, identity_file):
 	u = env.host_string.split('@')[0]
 	cmd = "ssh -f -i %s %s 'sudo cp %s /%s && sudo chown %s /%s'" % (identity_file,
-		env.host_string, os.path.join(asset_root, file),
+		translate_host_string_ssh(env.host_string), os.path.join(asset_root, file),
 		os.path.join('home', u), "%(u)s:%(u)s" % ({'u' : u}),
 		os.path.join('home', u, file))
 
@@ -52,7 +60,7 @@ def downloadGlobaleaksAsset(file, asset_root, identity_file):
 			get(file, content)
 
 		cmd = "ssh -f -i %s %s 'rm /%s'" % (identity_file,
-			env.host_string, os.path.join('home', u, file))
+			translate_host_string_ssh(env.host_string), os.path.join('home', u, file))
 		
 		local(cmd, capture=True)
 	
@@ -66,7 +74,8 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 		
 	def getAssetMimeType(self, file):
 		mime_type = InformaCamClientFabricProcess(getGlobaleaksAssetMimeType,
-			self.config['host'], self.config['user'], self.config['identity_file'], args={
+			self.config['host'], self.config['user'], self.config['identity_file'], port=self.config['port'],
+			args={
 				'file' : file, 
 				'asset_root' : self.config['asset_root'],
 				'identity_file' : self.config['identity_file']
@@ -79,8 +88,8 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 		assets = []
 
 		list_gl_assets = InformaCamClientFabricProcess(listGlobaleakAssets, 
-			self.config['host'], self.config['user'], self.config['identity_file'],
-			args={ 'asset_root' : self.config['asset_root'], 'identity_file' : self.config['identity_file']})
+			self.config['host'], self.config['user'], self.config['identity_file'], port=self.config['port'],
+			args={ 'asset_root' : self.config['asset_root'], 'identity_file' : self.config['identity_file']},)
 
 		list_gl_assets.join()
 
@@ -138,7 +147,7 @@ class InformaCamGlobaleaksClient(InformaCamClient):
 				'file' : file,
 				'asset_root' : self.config['asset_root'],
 				'identity_file' : self.config['identity_file']
-			})
+			}, port=self.config['port'])
 		content.join()
 
 		if content.output is None:
