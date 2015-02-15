@@ -11,7 +11,7 @@ def get_vector(uv_task):
 
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	from conf import ANNEX_DIR
-	import pypuzzle
+	import os, pypuzzle
 
 	image = UnveillanceDocument(_id=uv_task.doc_id)
 	puzz = pypuzzle.Puzzle()

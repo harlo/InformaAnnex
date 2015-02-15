@@ -16,7 +16,7 @@ sleep 2
 
 cd $THIS_DIR
 
-sudo apt-get install -y zip unzip pkg-config libx264-dev make g++ python-setuptools yasm ant openjdk-7-jdk lsof libgd2-xpm-dev
+sudo apt-get install -y zip unzip pkg-config libx264-dev make g++ python-setuptools yasm ant openjdk-7-jdk lsof libgd2-xpm-dev libpuzzle-dev libjpeg62
 
 FFMPEG_VERSION=`which ffmpeg`
 if [[ $FFMPEG_VERSION == *bin/ffmpeg ]]
