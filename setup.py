@@ -183,7 +183,7 @@ def validateRepository(repo=None):
 			if 'port' not in repo.keys():
 				repo['port'] = prompt("Globaleaks ssh port: ")
 
-			if len(repo['port']) == 0:
+			if len(str(repo['port'])) == 0:
 				repo['port'] = 22
 			
 			if 'public_url' not in repo.keys():
