@@ -289,9 +289,14 @@ if __name__ == "__main__":
 		'organizationFingerprint' : sec_config['org_fingerprint'],
 		'forms' : []
 	}
-	
-	forms_root = prompt("If your ICTD contains forms, enter the folder where they are found.\nIf you don't have any forms, just press enter.")
-	if len(forms_root) == 0: forms_root = None
+
+	forms_root = None
+	if 'forms_root' not in sec_config.keys():
+		forms_root = prompt("If your ICTD contains forms, enter the folder where they are found.\nIf you don't have any forms, just press enter.")
+		if len(forms_root) == 0:
+			forms_root = None
+	else:
+		forms_root = sec_config['forms_root']
 	
 	if forms_root is not None:
 		for _, _, files in os.walk(forms_root):
