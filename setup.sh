@@ -81,5 +81,6 @@ pip install --upgrade -r requirements.txt
 python setup.py $1
 
 cd lib/Annex
+GLOBIGNORE="conf/drive.secrets.json"
 chmod 0400 conf/*
 python unveillance_annex.py -firstuse
