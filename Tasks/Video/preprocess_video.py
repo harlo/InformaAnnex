@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def makeDerivatives(task):
+def preprocessVideo(task):
 	task_tag = "PREPROCESSING VIDEO"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "image preprocessing at %s" % task.doc_id
