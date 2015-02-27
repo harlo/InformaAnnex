@@ -49,11 +49,12 @@ def decrypt(uv_task):
 	print "SAVING DECRYPTED ASSET TO %s IF SUCCESSFUL" % save_as
 
 	with settings(hide('everything'), warn_only=True):
-		decrypted = local("gpg --passphrase %s --output %s --decrypt %s" % (gpg_pwd,
-		os.path.join(ANNEX_DIR, save_as), os.path.join(ANNEX_DIR, uv_task.pgp_file)))
+		d_cmd = "gpg --no-tty --passphrase %s --output %s --decrypt %s" % (gpg_pwd,
+		os.path.join(ANNEX_DIR, save_as), os.path.join(ANNEX_DIR, uv_task.pgp_file))
+
+		decrypted = local(d_cmd)
 
 		del gpg_pwd
-
 		if decrypted.return_code == 2:
 			err_msg = "could not successfully decrypt %s" % uv_task.pgp_file
 			print err_msg
