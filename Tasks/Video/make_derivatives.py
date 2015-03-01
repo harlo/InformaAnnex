@@ -22,7 +22,10 @@ def makeDerivatives(task):
 		return
 	
 	import os
-	from subprocess import Popen
+	from fabric.api import settings, local
+	from fabric.context_managers import hide
+
+	from conf import ANNEX_DIR
 	
 	resolutions = {
 		'high' : None,
@@ -30,6 +33,7 @@ def makeDerivatives(task):
 		'low' : [0.5, 0.5]
 	}
 	
+	video.getFile(video.file_name)
 	for label, res in resolutions.iteritems():
 		asset_path = video.addAsset(None, "%s_%s" % (label, video.file_name),
 			tags=[ASSET_TAGS['M_DERIV'], ASSET_TAGS[label.upper()]],
@@ -48,8 +52,16 @@ def makeDerivatives(task):
 		else:
 			cmd = ["cp", os.path.join(ANNEX_DIR, video.file_name), asset_path]
 		
-		p = Popen(cmd)
-		p.wait()
+		with settings(warn_only=True):
+			ffmpeg = local(" ".join(cmd))
+
+		if DEBUG:
+			print "FFMPEG CMD: %s" % (" ".join(cmd))
+			print "failed: %s, return_code: %d" % (ffmpeg.failed, ffmpeg.return_code)
+
+		if ffmpeg.failed or ffmpeg.return_code == 1:
+			continue
+		
 		video.addFile(asset_path, None, sync=True)
 		
 		ogv_asset_path = video.addAsset(None, asset_path.replace(".mp4", ".ogv"),
@@ -57,8 +69,11 @@ def makeDerivatives(task):
 			description="derivative of video in %s resolution (ogv)" % label)
 		
 		if ogv_asset_path is not None:
-			p = Popen(["ffmpeg2theora", asset_path])
-			p.wait()
+			with settings(warn_only=True):
+				ffmpeg2theora = local("ffmpeg2theora %s" % asset_path)
+
+			if ffmpeg2theora.failed or ffmpeg2theora.return_code == 1:
+				continue
 			
 			video.addFile(ogv_asset_path, None, sync=True)
 	
@@ -70,8 +85,12 @@ def makeDerivatives(task):
 		cmd = ["ffmpeg", "-y", "-i", os.path.join(ANNEX_DIR, video.file_name),
 			"-f", "image2", "-ss", "0.342", "-vframes", "1", asset_path]
 	
-		p = Popen(cmd)
-		p.wait()
+		with settings(warn_only=True):
+			thumb = local(" ".join(cmd))
+
+		if DEBUG: 
+			print "FFMPEG CMD: %s" % (" ".join(cmd))
+			print "failed: %s, return_code: %d" % (thumb.failed, thumb.return_code)
 	
 	video.addCompletedTask(task.task_path)
 	task.finish()
