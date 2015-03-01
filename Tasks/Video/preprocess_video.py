@@ -3,22 +3,22 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def preprocessVideo(task):
+def preprocessVideo(uv_task):
 	task_tag = "PREPROCESSING VIDEO"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "image preprocessing at %s" % task.doc_id
-	task.setStatus(302)
+	print "image preprocessing at %s" % uv_task.doc_id
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.ic_video import InformaCamVideo
 	
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 	
-	video = InformaCamVideo(_id=task.doc_id)
+	video = InformaCamVideo(_id=uv_task.doc_id)
 	if video is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.fail()
+		uv_task.fail()
 		return
 		
 	asset_path = video.addAsset(None, "j3m_raw.txt")
@@ -26,57 +26,61 @@ def preprocessVideo(task):
 	if asset_path is None:
 		print "COULD NOT MAKE ASSET"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.fail()
+		uv_task.fail()
 		return
 	
 	was_encrypted = False
 	obscura_marker_found = False
 	
 	import os
-	from subprocess import Popen
+	from fabric.api import settings, local
 	
 	from lib.Core.Utils.funcs import b64decode
 	from conf import ANNEX_DIR
 	
-	p = Popen(["ffmpeg", "-y", "-dump_attachment:t", os.path.join(ANNEX_DIR, asset_path), "-i",
-		os.path.join(ANNEX_DIR, video.file_name)])
-	p.wait()
-	
-	un_b64 = b64decode(video.loadAsset("j3m_raw.txt"))
-	
-	if un_b64 is not None:
-		from lib.Worker.Utils.funcs import getFileType
-		from vars import MIME_TYPES, MIME_TYPE_MAP
+	j3m_attachment = os.path.join(ANNEX_DIR, asset_path)
+	cmd = ["ffmpeg", "-y", "-dump_attachment:t", j3m_attachment, "-i",
+		os.path.join(ANNEX_DIR, video.file_name)]
 
-		obscura_marker_found = True
-				
-		un_b64_mime_type = getFileType(un_b64, as_buffer=True)
-		if un_b64_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-			
-			asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
-			video.addAsset(un_b64, asset_path)
-			
-			new_task = { 'doc_id' : video._id, 'queue' : task.queue }
-			task_path = None
-				
-			if un_b64_mime_type == MIME_TYPES['pgp']:
-				task_path = "PGP.request_decrypt.requestDecrypt"
-				new_task['pgp_file'] = asset_path
-				
-				was_encrypted = True				
-				
-			elif un_b64_mime_type == MIME_TYPES['gzip']:
-				task_path = "J3M.j3mify.j3mify"
-				video.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']],
-					description="j3m data extracted from mkv stream")
+	with settings(warn_only=True):
+		ffmpeg = local(" ".join(cmd))
 
-			video.addCompletedTask(task.task_path)
+	if not os.path.exists(j3m_attachment):
+		print "FFMPEG COULD NOT DO THE THING"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.fail()
+		return
 
-			if task_path is not None:
-				new_task['task_path'] = task_path					
-				new_task = UnveillanceTask(inflate=new_task)
-				new_task.run()
-	
+	from lib.Worker.Utils.funcs import getFileType
+	from vars import MIME_TYPES, MIME_TYPE_MAP
+
+	next_tasks = []
+	inflate = {}
+
+	j3m_content = video.loadAsset("j3m_raw.txt")
+	print j3m_content
+
+	j3m_content_mime_type = getFileType(j3m_content, as_buffer=True)
+
+	if j3m_content_mime_type not in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
+		j3m_content = b64decode(j3m_content)
+		if j3m_content is not None:
+			j3m_content_mime_type = getFileType(j3m_content, as_buffer=True)
+
+	if j3m_content_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
+		asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[j3m_content_mime_type]
+		video.addAsset(un_b64, asset_path)
+						
+		if j3m_content_mime_type == MIME_TYPES['pgp']:
+			next_tasks.append("PGP.request_decrypt.requestDecrypt")
+			inflate['pgp_file'] = asset_path			
+		elif j3m_content_mime_type == MIME_TYPES['gzip']:
+			next_tasks.append("J3M.j3mify.j3mify")
+			video.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']],
+				description="j3m data extracted from mkv stream")
+
+		video.addCompletedTask(task.task_path)
+
 	from vars import UPLOAD_RESTRICTION
 
 	try:
@@ -86,12 +90,11 @@ def preprocessVideo(task):
 		print e
 
 	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
-		new_task = UnveillanceTask(inflate={
-			'task_path' : "Video.make_derivatives.makeDerivatives",
-			'doc_id' : video._id,
-			'queue' : task.queue
-		})
-		new_task.run()
+		next_tasks.append("Video.make_derivatives.makeDerivatives")
 	
-	task.finish()
+	if len(next_tasks) > 0:
+		uv_task.put_next(next_tasks)
+		uv_task.routeNext(inflate=inflate)
+	
+	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

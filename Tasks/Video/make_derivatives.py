@@ -35,7 +35,7 @@ def makeDerivatives(task):
 	
 	video.getFile(video.file_name)
 	for label, res in resolutions.iteritems():
-		asset_path = video.addAsset(None, "%s_%s" % (label, video.file_name),
+		asset_path = video.addAsset(None, "%s_%s.mp4" % (label, video.file_name),
 			tags=[ASSET_TAGS['M_DERIV'], ASSET_TAGS[label.upper()]],
 			description="derivative of video in %s resolution (mp4)" % label)
 			
@@ -48,9 +48,9 @@ def makeDerivatives(task):
 		if res is not None:
 			cmd = ["ffmpeg", "-y", "-i", os.path.join(ANNEX_DIR, video.file_name),
 				"-filter:v", "scale=%d:%d" % (res[0], res[1]),
-				"-acodec", "copy", asset_path]
+				"-acodec", "copy", os.path.join(ANNEX_DIR, asset_path)]
 		else:
-			cmd = ["cp", os.path.join(ANNEX_DIR, video.file_name), asset_path]
+			cmd = ["cp", os.path.join(ANNEX_DIR, video.file_name), os.path.join(ANNEX_DIR, asset_path)]
 		
 		with settings(warn_only=True):
 			ffmpeg = local(" ".join(cmd))
@@ -70,7 +70,7 @@ def makeDerivatives(task):
 		
 		if ogv_asset_path is not None:
 			with settings(warn_only=True):
-				ffmpeg2theora = local("ffmpeg2theora %s" % asset_path)
+				ffmpeg2theora = local("ffmpeg2theora %s" % os.path.join(ANNEX_DIR, asset_path))
 
 			if ffmpeg2theora.failed or ffmpeg2theora.return_code == 1:
 				continue
@@ -83,7 +83,7 @@ def makeDerivatives(task):
 	
 	if asset_path is not None:
 		cmd = ["ffmpeg", "-y", "-i", os.path.join(ANNEX_DIR, video.file_name),
-			"-f", "image2", "-ss", "0.342", "-vframes", "1", asset_path]
+			"-f", "image2", "-ss", "0.342", "-vframes", "1", os.path.join(ANNEX_DIR, asset_path)]
 	
 		with settings(warn_only=True):
 			thumb = local(" ".join(cmd))
