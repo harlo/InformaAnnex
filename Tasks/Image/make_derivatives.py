@@ -52,8 +52,13 @@ def makeDerivatives(uv_task):
 
 			image_obj = image_obj.resize(resolution_tuple)
 
-		image_obj.save(os.path.join(ANNEX_DIR, asset_path), "JPEG")
-		image.addFile(asset_path, None, sync=True)
+		try:
+			image_obj.save(os.path.join(ANNEX_DIR, asset_path), "JPEG")
+			image.addFile(asset_path, None, sync=True)
+		except Exception as e:
+			print "\n\n************** %s [INFO] ******************\n" % task_tag
+			print "COULD NOT MAKE %s DERIVATIVE" % label
+			print e, type(e)
 	
 	image.addCompletedTask(uv_task.task_path)
 	uv_task.routeNext()

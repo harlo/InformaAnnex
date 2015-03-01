@@ -38,7 +38,7 @@ def preprocessVideo(task):
 	from lib.Core.Utils.funcs import b64decode
 	from conf import ANNEX_DIR
 	
-	p = Popen(["ffmpeg", "-y", "-dump_attachment:t", asset_path, "-i",
+	p = Popen(["ffmpeg", "-y", "-dump_attachment:t", os.path.join(ANNEX_DIR, asset_path), "-i",
 		os.path.join(ANNEX_DIR, video.file_name)])
 	p.wait()
 	
@@ -76,23 +76,6 @@ def preprocessVideo(task):
 				new_task['task_path'] = task_path					
 				new_task = UnveillanceTask(inflate=new_task)
 				new_task.run()
-	
-	# TODO: how to compile metadata with ffmpeg?
-	'''	
-	new_task = UnveillanceTask(inflate={
-		'task_path' : "Documents.compile_metadata.compileMetadata",
-		'doc_id' : video._id,
-		'queue' : task.queue,
-		'md_rx' : '%s\s+%s\s+\d+x\d+\s+.+\s+\((.*)\)',
-		'md_namespace' : "FFmpeg",
-		'md_extras' : {
-			'was_encrypted' : 1.0 if was_encrypted else 0.0,
-			'has_j3m' : 1.0 if obscura_marker_found else 0.0
-		},
-		'md_file' : "file_metadata.txt"
-	})
-	new_task.run()
-	'''
 	
 	from vars import UPLOAD_RESTRICTION
 
