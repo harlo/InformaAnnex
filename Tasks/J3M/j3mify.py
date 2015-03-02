@@ -127,7 +127,7 @@ def j3mify(uv_task):
 	
 	media.addFile(
 		media.addAsset(j3m['j3m'], "j3m.json", tags=[ASSET_TAGS['J3M']], description="The j3m itself.", as_literal=False), 
-		None, sync=True)
+		None)
 
 	media.addCompletedTask(uv_task.task_path)
 	

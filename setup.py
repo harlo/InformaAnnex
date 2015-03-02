@@ -325,11 +325,6 @@ if __name__ == "__main__":
 	from lib.Annex.conf import ANNEX_DIR
 	with open(os.path.join(ANNEX_DIR, "ictd.json"), 'wb+') as ICTD:
 		ICTD.write(json.dumps(ictd))
-	
-	os.chdir(ANNEX_DIR)
-	with settings(warn_only=True):
-		local("git annex add ictd.json")
-	os.chdir(base_dir)
 
 	with open(os.path.join(conf_dir, "annex.config.yaml"), 'ab') as CONFIG:
 		CONFIG.write("jpeg_tools_dir: %s\n" % os.path.join(base_dir, "lib", "jpeg"))	
