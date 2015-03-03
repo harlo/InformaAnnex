@@ -62,7 +62,7 @@ def makeDerivatives(task):
 		if ffmpeg.failed or ffmpeg.return_code == 1:
 			continue
 		
-		video.addFile(asset_path, None, sync=True)
+		video.addFile(asset_path, None)
 		
 		ogv_asset_path = video.addAsset(None, asset_path.replace(".mp4", ".ogv"),
 			tags=[ASSET_TAGS['M_DERIV'], ASSET_TAGS[label.upper()]],
@@ -75,7 +75,7 @@ def makeDerivatives(task):
 			if ffmpeg2theora.failed or ffmpeg2theora.return_code == 1:
 				continue
 			
-			video.addFile(ogv_asset_path, None, sync=True)
+			video.addFile(ogv_asset_path, None)
 	
 	asset_path = video.addAsset(None, "thumb_%s.jpg" % video.file_name[:-4],
 		tags=[ASSET_TAGS['M_DERIV'], ASSET_TAGS['THUMB']],

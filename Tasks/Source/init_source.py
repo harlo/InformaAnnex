@@ -69,7 +69,7 @@ def initSource(task):
 		if asset_path is None: continue
 		if sync:
 			print "ADDING %s AS FILE AS WELL:" % asset_path
-			source.addFile(asset_path, None, sync=True)
+			source.addFile(asset_path, None)
 			
 	if next_task is None:
 		print "NO PUBLIC KEY FOR SOURCE."

@@ -54,7 +54,7 @@ def makeDerivatives(uv_task):
 
 		try:
 			image_obj.save(os.path.join(ANNEX_DIR, asset_path), "JPEG")
-			image.addFile(asset_path, None, sync=True)
+			image.addFile(asset_path, None)
 		except Exception as e:
 			print "\n\n************** %s [INFO] ******************\n" % task_tag
 			print "COULD NOT MAKE %s DERIVATIVE" % label

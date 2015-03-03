@@ -69,7 +69,7 @@ def preprocessVideo(uv_task):
 
 	if j3m_content_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
 		asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[j3m_content_mime_type]
-		video.addAsset(un_b64, asset_path)
+		video.addAsset(j3m_content, asset_path)
 						
 		if j3m_content_mime_type == MIME_TYPES['pgp']:
 			next_tasks.append("PGP.request_decrypt.requestDecrypt")
@@ -79,7 +79,7 @@ def preprocessVideo(uv_task):
 			video.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']],
 				description="j3m data extracted from mkv stream")
 
-		video.addCompletedTask(task.task_path)
+		video.addCompletedTask(uv_task.task_path)
 
 	from vars import UPLOAD_RESTRICTION
 

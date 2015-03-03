@@ -63,8 +63,10 @@ def preprocessImage(task):
 			obscura_marker_found = True
 			ic_j3m_txt = StringIO()
 		else:
-			if obscura_marker_found: ic_j3m_txt.write(data)
-			else: tiff_txt.write(data)
+			if obscura_marker_found:
+				ic_j3m_txt.write(data)
+			else:
+				tiff_txt.write(data)
 				
 		data = p.stdout.readline()
 		
@@ -83,6 +85,8 @@ def preprocessImage(task):
 		ic_j3m_txt = ic_j3m_txt.getvalue()
 		ic_j3m_txt_mime_type = getFileType(ic_j3m_txt, as_buffer=True)
 		inflate = {}
+
+		print "J3M MIME TYPE SNIFFED: %s" % ic_j3m_txt_mime_type
 
 		if ic_j3m_txt_mime_type != MIME_TYPES['json']:
 			from lib.Core.Utils.funcs import b64decode
