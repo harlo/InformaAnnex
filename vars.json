@@ -47,7 +47,7 @@
 		"image" : "image/jpeg",
 		"wildcard" : "application/octet-stream",
 		"pgp" : "application/pgp",
-		"gzip" : "application/x-gzip",
+		"gzip" : ["application/x-gzip", "application/gzip"],
 		"json" : "application/json",
 		"j3m" : "informacam/j3m",
 		"j3mlog" : "informacam/log"

@@ -85,7 +85,7 @@ def makeDerivatives(task):
 		cmd = ["ffmpeg", "-y", "-i", os.path.join(ANNEX_DIR, video.file_name),
 			"-f", "image2", "-ss", "0.342", "-vframes", "1", os.path.join(ANNEX_DIR, asset_path)]
 	
-		with settings(warn_only=True):
+		with settings(hide('everything'), warn_only=True):
 			thumb = local(" ".join(cmd))
 
 		if DEBUG: 
@@ -93,5 +93,7 @@ def makeDerivatives(task):
 			print "failed: %s, return_code: %d" % (thumb.failed, thumb.return_code)
 	
 	video.addCompletedTask(task.task_path)
+
+	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

@@ -64,7 +64,7 @@ def locate_j3m(uv_task):
 					
 					was_encrypted = True
 					
-				elif un_b64_mime_type == MIME_TYPES['gzip']:
+				elif un_b64_mime_type in MIME_TYPES['gzip']:
 					uv_task.put_next("J3M.j3mify.parse_zipped_j3m")
 				
 	else:

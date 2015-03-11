@@ -41,7 +41,7 @@ def parse_zipped_j3m(uv_task):
 	j3m = media.loadFile(j3m_name)
 	j3m_type = getFileType(j3m, as_buffer=True)
 	
-	if j3m_type == MIME_TYPES['gzip']:
+	if j3m_type in MIME_TYPES['gzip']:
 		j3m = unGzipBinary(j3m)
 	
 	if j3m is None or getFileType(j3m, as_buffer=True) != MIME_TYPES['json']:
