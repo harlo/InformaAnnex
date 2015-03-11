@@ -79,61 +79,15 @@ def preprocessImage(task):
 	del tiff_txt
 	
 	if ic_j3m_txt is not None:
-		from lib.Worker.Utils.funcs import getFileType
-		from vars import MIME_TYPES, MIME_TYPE_MAP
+		asset_path = image.addAsset(ic_j3m_txt.getvalue(), "j3m_raw.txt")
 
-		ic_j3m_txt = ic_j3m_txt.getvalue()
-		ic_j3m_txt_mime_type = getFileType(ic_j3m_txt, as_buffer=True)
-		inflate = {}
+		if asset_path is None:
+			print "COULD NOT MAKE ASSET"
+			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			uv_task.fail()
+			return
 
-		print "J3M MIME TYPE SNIFFED: %s" % ic_j3m_txt_mime_type
-
-		if ic_j3m_txt_mime_type != MIME_TYPES['json']:
-			from lib.Core.Utils.funcs import b64decode
-			un_b64 = b64decode(ic_j3m_txt)
-		
-			if un_b64 is not None:	
-				un_b64_mime_type = getFileType(un_b64, as_buffer=True)
-				if un_b64_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-					if DEBUG:
-						print "MIME TYPE: %s" % un_b64_mime_type
-					
-					asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[un_b64_mime_type]
-					image.addAsset(un_b64, asset_path)
-					
-					if DEBUG:
-						print "\n\nPGP KEY FILE PATH: %s\n\n" % asset_path
-					
-					gz = image.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']], 
-						description="j3m data extracted from obscura marker")
-					
-					if un_b64_mime_type == MIME_TYPES['pgp']:
-						task.put_next([
-							"PGP.decrypt.decrypt",
-							"J3M.j3mify.parse_zipped_j3m"
-						])
-
-						inflate.update({
-							'pgp_file' : os.path.join(image.base_path, asset_path),
-							'save_as' : gz
-						})
-						
-						was_encrypted = True
-						
-					elif un_b64_mime_type == MIME_TYPES['gzip']:
-						task.put_next("J3M.j3mify.parse_zipped_j3m")
-					
-		else:
-			asset_path = image.addAsset(ic_j3m_txt, "j3m_raw.json", as_literal=False)
-
-			task.put_next([
-				"J3M.j3mify.j3mify",
-				"J3M.massage_j3m.massageJ3M",
-				"PGP.verify_signature.verifySignature",
-				"J3M.verify_visual_content.verifyVisualContent"
-			])
-			
-			inflate.update({'j3m_name' : "j3m_raw.json"})
+		task.put_next("J3M.locate_j3m.locate_j3m")
 
 		try:
 			upload_restriction = image.getFileMetadata('uv_restriction')
@@ -154,6 +108,6 @@ def preprocessImage(task):
 
 	image.addCompletedTask(task.task_path)
 	
-	task.routeNext(inflate=inflate)
+	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

@@ -52,7 +52,7 @@ def makeDerivatives(task):
 		else:
 			cmd = ["cp", os.path.join(ANNEX_DIR, video.file_name), os.path.join(ANNEX_DIR, asset_path)]
 		
-		with settings(warn_only=True):
+		with settings(hide('everything'), warn_only=True):
 			ffmpeg = local(" ".join(cmd))
 
 		if DEBUG:
@@ -69,7 +69,7 @@ def makeDerivatives(task):
 			description="derivative of video in %s resolution (ogv)" % label)
 		
 		if ogv_asset_path is not None:
-			with settings(warn_only=True):
+			with settings(hide('everything'), warn_only=True):
 				ffmpeg2theora = local("ffmpeg2theora %s" % os.path.join(ANNEX_DIR, asset_path))
 
 			if ffmpeg2theora.failed or ffmpeg2theora.return_code == 1:

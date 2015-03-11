@@ -45,56 +45,27 @@ def preprocessVideo(uv_task):
 	with settings(warn_only=True):
 		ffmpeg = local(" ".join(cmd))
 
-	if not os.path.exists(j3m_attachment):
-		print "FFMPEG COULD NOT DO THE THING"
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.fail()
-		return
-
-	from lib.Worker.Utils.funcs import getFileType
-	from vars import MIME_TYPES, MIME_TYPE_MAP
-
-	next_tasks = []
-	inflate = {}
-
-	j3m_content = video.loadAsset("j3m_raw.txt")
-	print j3m_content
-
-	j3m_content_mime_type = getFileType(j3m_content, as_buffer=True)
-
-	if j3m_content_mime_type not in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-		j3m_content = b64decode(j3m_content)
-		if j3m_content is not None:
-			j3m_content_mime_type = getFileType(j3m_content, as_buffer=True)
-
-	if j3m_content_mime_type in [MIME_TYPES['pgp'], MIME_TYPES['gzip']]:
-		asset_path = "j3m_raw.%s" % MIME_TYPE_MAP[j3m_content_mime_type]
-		video.addAsset(j3m_content, asset_path)
-						
-		if j3m_content_mime_type == MIME_TYPES['pgp']:
-			next_tasks.append("PGP.request_decrypt.requestDecrypt")
-			inflate['pgp_file'] = asset_path			
-		elif j3m_content_mime_type == MIME_TYPES['gzip']:
-			next_tasks.append("J3M.j3mify.j3mify")
-			video.addAsset(None, "j3m_raw.gz", tags=[ASSET_TAGS['OB_M']],
-				description="j3m data extracted from mkv stream")
-
-		video.addCompletedTask(uv_task.task_path)
-
 	from vars import UPLOAD_RESTRICTION
 
-	try:
-		upload_restriction = video.getFileMetadata('uv_restriction')
-	except Exception as e:
-		print "could not get metadata for uv_restriction"
-		print e
+	if os.path.exists(j3m_attachment):
+		uv_task.put_next("J3M.locate_j3m.locate_j3m")
 
+		try:
+			upload_restriction = video.getFileMetadata('uv_restriction')
+		except Exception as e:
+			print "could not get metadata for uv_restriction"
+			print e
+		
+	else:
+		print "NO IC J3M TEXT FOUND???"
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
+		upload_restriction = UPLOAD_RESTRICTION['for_local_use_only']
+	
 	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
-		next_tasks.append("Video.make_derivatives.makeDerivatives")
+		uv_task.put_next("Video.make_derivatives.makeDerivatives")
 	
-	if len(next_tasks) > 0:
-		uv_task.put_next(next_tasks)
-		uv_task.routeNext(inflate=inflate)
+	video.addCompletedTask(uv_task.task_path)	
 	
+	uv_task.routeNext()
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
