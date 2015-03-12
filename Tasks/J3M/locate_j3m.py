@@ -68,6 +68,11 @@ def locate_j3m(uv_task):
 					uv_task.put_next("J3M.j3mify.parse_zipped_j3m")
 				
 	else:
+		from fabric.api import settings, json
+		with settings(warn_only=True):
+			local("mv %s %s" % (os.path.join(media.base_path, ".data", "j3m_raw.txt"),
+				os.path.join(media.base_path, ".data", "j3m_raw.json")))
+
 		uv_task.put_next([
 			"J3M.j3mify.j3mify",
 			"J3M.massage_j3m.massageJ3M",
