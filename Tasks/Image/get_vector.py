@@ -35,22 +35,21 @@ def get_vector(uv_task):
 
 	try:
 		cvec = puzz.get_cvec_from_file(hi_res)
+
+		if not image.addAsset(cvec, "image_cvec.json", as_literal=False, tags=[ASSET_TAGS['IMAGE_CVEC']]):
+			error_msg = "could not save cvec asset!"
+
+			print error_msg
+			print "\n\n************** %s [WARN] ******************\n" % task_tag
+		else:
+			image.addCompletedTask(uv_task.task_path)
+			
 	except Exception as e:
 		error_msg = "Could not get image vector because %s" % e
 
 		print error_msg
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
 		
-		uv_task.fail(message=error_msg)
-		return
-
-	if not image.addAsset(cvec, "image_cvec.json", as_literal=False, tags=[ASSET_TAGS['IMAGE_CVEC']]):
-		error_msg = "could not save cvec asset!"
-
-		print error_msg
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		
-		uv_task.fail(message=error_msg)
 
 	uv_task.routeNext()
 	print "\n\n************** %s [END] ******************\n" % task_tag
