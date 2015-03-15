@@ -86,7 +86,7 @@ def j3mify(uv_task):
 
 	j3m = media.loadAsset(uv_task.j3m_name)
 	if j3m is None:
-		error_message = "J3M IS NONE"
+		error_message = "J3M IS NONE (from name %s)" % uv_task.j3m_name
 		print error_message
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		uv_task.fail(message=error_message)

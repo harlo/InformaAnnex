@@ -51,7 +51,7 @@ def get_vector(uv_task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		
 		uv_task.fail(message=error_msg)
-		return
 
+	uv_task.routeNext()
 	print "\n\n************** %s [END] ******************\n" % task_tag
 	uv_task.finish()

@@ -11,7 +11,7 @@ def locate_j3m(uv_task):
 		
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 	
-	from conf import DEBUG
+	from conf import DEBUG, ANNEX_DIR
 	from vars import ASSET_TAGS
 	
 	media = UnveillanceDocument(_id=uv_task.doc_id)
@@ -68,10 +68,17 @@ def locate_j3m(uv_task):
 					uv_task.put_next("J3M.j3mify.parse_zipped_j3m")
 				
 	else:
-		from fabric.api import settings, json
+		import os
+		from fabric.api import settings, local
+
 		with settings(warn_only=True):
-			local("mv %s %s" % (os.path.join(media.base_path, ".data", "j3m_raw.txt"),
-				os.path.join(media.base_path, ".data", "j3m_raw.json")))
+			src_j3m = os.path.join(ANNEX_DIR, media.base_path, "j3m_raw.txt")
+			dest_j3m = os.path.join(ANNEX_DIR, media.base_path, "j3m_raw.json")
+
+			local("mv %s %s" % (src_j3m, dest_j3m))
+
+		print "PUTTING J3M FROM HERE!!!! WAS JSON! (%s -> %s)" % (src_j3m, dest_j3m)
+		media.addAsset(None, "j3m_raw.json")
 
 		uv_task.put_next([
 			"J3M.j3mify.j3mify",
