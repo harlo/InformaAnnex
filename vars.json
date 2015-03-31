@@ -50,7 +50,8 @@
 		"gzip" : ["application/x-gzip", "application/gzip"],
 		"json" : "application/json",
 		"j3m" : "informacam/j3m",
-		"j3mlog" : "informacam/log"
+		"j3mlog" : "informacam/log",
+		"video" : "video/x-matroska"
 	},
 	"MIME_TYPE_MAP" : {
 		"application/zip" : "zip",
@@ -59,7 +60,8 @@
 		"application/pgp" : "pgp",
 		"application/x-gzip" : "gz",
 		"informacam/j3m" : "json",
-		"informacam/log" : "wildcard"
+		"informacam/log" : "wildcard",
+		"video/x-matroska" : "video"
 	},
 	"MIME_TYPE_TASKS" : {
 		"text/plain" : ["Media.evaluate_text.evaluateTextFile"],
