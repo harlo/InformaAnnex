@@ -25,7 +25,7 @@ def locate_j3m(uv_task):
 	from vars import MIME_TYPES, MIME_TYPE_MAP
 
 	ic_j3m_txt = media.loadAsset("j3m_raw.txt")
-	ic_j3m_txt_mime_type = getFileType(ic_j3m_txt, as_buffer=True)
+	ic_j3m_txt_mime_type = getFileType(ic_j3m_txt, as_buffer=True, force_json=True)
 	inflate = {}
 
 	print "J3M MIME TYPE SNIFFED: %s" % ic_j3m_txt_mime_type

@@ -21,6 +21,11 @@ class InformaCamMedia(UnveillanceDocument):
 			if hasattr(self, r):
 				delattr(self, r)
 
+		'''
+		from lib.Worker.Models.ic_media import InformaCamMedia
+		i = InformaCamMedia(_id="b00957d3a27b8cfa0306fa7ddb01557e515056e7")
+		'''
+
 		super(InformaCamMedia, self).reset()
 
 	def emit(self, remove=None):
@@ -100,7 +105,7 @@ class InformaCamMedia(UnveillanceDocument):
 			if DEBUG:
 				print similar_media
 
-			similar_media = [UnveillanceDocument(_id=m['_id']) for m in similar_media['documents'] if m['_id'] != self._id]
+			similar_media = [InformaCamMedia(_id=m['_id']) for m in similar_media['documents'] if m['_id'] != self._id]
 			similar_media = [{ '_id' : m._id, 'provenance' : m.get_provenance()} for m in similar_media]
 		
 		try:

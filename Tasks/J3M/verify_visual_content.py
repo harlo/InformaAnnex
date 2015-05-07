@@ -44,8 +44,12 @@ def verifyVisualContent(task):
 	media.media_verified = False
 	if not hasattr(media, "verified_hash"):	
 		if media.mime_type == MIME_TYPES['image']:
+			from lib.Worker.Models.ic_image import InformaCamImage
+			media = InformaCamImage(_id=media._id)
 			media.get_image_hash()
 		elif media.mime_type == MIME_TYPES['video']:
+			from lib.Worker.Models.ic_video import InformaCamVideo
+			media = InformaCamVideo(_id=media._id)
 			media.get_video_hash()
 	
 	if type(supplied_hashes) is list:
