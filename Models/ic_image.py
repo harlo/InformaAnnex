@@ -24,3 +24,37 @@ class InformaCamImage(InformaCamMedia):
 		self.verified_hash = verified_hash
 		self.save()
 		return True
+
+	def get_image_vector(self):
+		import os, pypuzzle
+		from vars import ASSET_TAGS
+		from conf import ANNEX_DIR, DEBUG
+
+		hi_res = self.getAssetsByTagName(ASSET_TAGS['HIGH'])
+	
+		if hi_res is None:
+			hi_res = self.file_name
+		else:
+			hi_res = os.path.join(self.base_path, hi_res[0]['file_name'])
+
+		hi_res = os.path.join(ANNEX_DIR, hi_res)
+		puzz = pypuzzle.Puzzle()
+
+		if DEBUG:
+			print "generate puzzle vector from %s" % hi_res
+
+		try:
+			cvec = puzz.get_cvec_from_file(hi_res)
+
+			if not self.addAsset(cvec, "image_cvec.json", as_literal=False, tags=[ASSET_TAGS['IMAGE_CVEC']]):
+				error_msg = "could not save cvec asset!"
+				print error_msg
+			else:
+				return True
+				
+		except Exception as e:
+			error_msg = "Could not get image vector because %s" % e
+			print error_msg
+
+		return False
+

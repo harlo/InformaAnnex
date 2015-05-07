@@ -40,7 +40,8 @@
 		"SIG" : "j3m_signature",
 		"M_DERIV" : "media_derivative",
 		"PGP_KEY" : "pgp_key",
-		"IMAGE_CVEC" : "libpuzzle_image_vector"
+		"IMAGE_CVEC" : "libpuzzle_image_vector",
+		"J3M_COMP" : "j3m_compare"
 	},
 	"MIME_TYPES" : {
 		"zip" : "application/zip",

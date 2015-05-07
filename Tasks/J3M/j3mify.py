@@ -55,8 +55,8 @@ def parse_zipped_j3m(uv_task):
 
 	uv_task.put_next([
 		"J3M.j3mify.j3mify",
-		"J3M.massage_j3m.massageJ3M",
 		"PGP.verify_signature.verifySignature",
+		"J3M.massage_j3m.massageJ3M",
 		"J3M.verify_visual_content.verifyVisualContent"
 	])
 

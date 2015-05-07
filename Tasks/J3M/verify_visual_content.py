@@ -56,7 +56,7 @@ def verifyVisualContent(task):
 			if hash == media.verified_hash:
 				media.media_verified = True
 	
-	media.save()
+	media.saveFields("media_verified")
 	media.addCompletedTask(task.task_path)
 
 	task.routeNext()

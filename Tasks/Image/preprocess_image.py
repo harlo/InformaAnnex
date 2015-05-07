@@ -20,7 +20,11 @@ def preprocessImage(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		task.fail()
 		return
-	
+
+	image.get_image_hash()
+	image.get_image_vector()
+	image.update_similar_media()
+
 	import os
 	from conf import getConfig, ANNEX_DIR
 	try:
@@ -99,12 +103,12 @@ def preprocessImage(task):
 		print "NO IC J3M TEXT FOUND???"
 		print "\n\n************** %s [WARN] ******************\n" % task_tag
 		upload_restriction = UPLOAD_RESTRICTION['for_local_use_only']
-	
+
+		# if image is a dopelganger, set a forwarder on it
+		image.set_media_alias()
 
 	if upload_restriction is None or upload_restriction == UPLOAD_RESTRICTION['no_restriction']:
 		task.put_next("Image.make_derivatives.makeDerivatives")
-
-	task.put_next("Image.get_vector.get_vector")
 
 	image.addCompletedTask(task.task_path)
 	
