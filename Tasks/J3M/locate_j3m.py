@@ -84,7 +84,8 @@ def locate_j3m(uv_task):
 			"J3M.j3mify.j3mify",
 			"PGP.verify_signature.verifySignature",
 			"J3M.massage_j3m.massageJ3M",
-			"J3M.verify_visual_content.verifyVisualContent"
+			"J3M.verify_visual_content.verifyVisualContent",
+			"J3M.notarize.notarize_media"
 		])
 		
 		inflate.update({'j3m_name' : "j3m_raw.json"})

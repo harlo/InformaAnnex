@@ -17,13 +17,13 @@ class InformaCamMedia(UnveillanceDocument):
 			self.j3m = InformaCamJ3M(_id=self.j3m_id)
 
 	def reset(self):
-		for r in ['media_verified', 'j3m_verified', 'verified_hash']:
+		for r in ['media_verified', 'j3m_verified', 'verified_hash', 'notarized']:
 			if hasattr(self, r):
 				delattr(self, r)
 
 		'''
 		from lib.Worker.Models.ic_media import InformaCamMedia
-		i = InformaCamMedia(_id="b00957d3a27b8cfa0306fa7ddb01557e515056e7")
+		i = InformaCamMedia(_id="18927a7e4bb556fbb121b210a0b68e6c4663abcf")
 		'''
 
 		super(InformaCamMedia, self).reset()
@@ -47,6 +47,58 @@ class InformaCamMedia(UnveillanceDocument):
 				return False
 
 		return self.media_verified and self.j3m_verified
+
+	def notarize(self):
+		if hasattr(self, "notarized") and self.notarized:
+			print "ALREADY NOTARIZED: (%s)" % self.notarized
+			return False
+
+		if not self.get_provenance():
+			print "NO PROVENANCE YET"
+			return False
+
+		j3m = self.getAsset("j3m_raw.json", return_only="path")
+		if j3m is None:
+			print "NO RAW J3M TO NOTARIZE."
+			return False
+
+		from lib.Core.Utils.funcs import hashEntireFile
+		j3m_hash = hashEntireFile(j3m, hfunc="sha256")
+		
+		if j3m_hash is None:
+			print "WHY DIDN'T HASH WORK?"
+			return False
+
+		import gnugp
+		from vars import ASSET_TAGS
+		from conf import getConfig, getSecrets
+
+		try:
+			gpg = gnupg.GPG(homedir=getConfig('gpg_homedir'))
+			gpg_pwd = getSecrets('gpg_pwd')
+
+			notarization_doc = gpg.sign(j3m_hash, \
+				default_key=getSecrets('org_fingerprint')[-8:], passphrase=gpg_pwd)
+
+			del gpg_pwd
+
+			if len(notarization_doc.data) == 0:
+				print "NO NOTARIZATION DOC"
+				return False
+
+			self.addAsset(notarization_doc.data, "j3m_notarized.asc", tags=[ASSET_TAGS['IC_NOTARIZE']],
+				description="Signed Notarization Doc, ready to publish.")
+			
+			self.notarized = True
+			self.saveFields("notarized")
+			return True
+
+		except Exception as e:
+			print "PROBLEM SIGNING DOC:"
+			print e, type(e)
+
+		return False
+
 
 	def add_media_reference(self, _id):
 		if not hasattr(self, "media_references"):

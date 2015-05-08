@@ -41,7 +41,8 @@
 		"M_DERIV" : "media_derivative",
 		"PGP_KEY" : "pgp_key",
 		"IMAGE_CVEC" : "libpuzzle_image_vector",
-		"J3M_COMP" : "j3m_compare"
+		"J3M_COMP" : "j3m_compare",
+		"IC_NOTARIZE" : "camerav_notarization_doc"
 	},
 	"MIME_TYPES" : {
 		"zip" : "application/zip",
