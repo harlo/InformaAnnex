@@ -25,6 +25,7 @@ def preprocessImage(task):
 	image.get_image_vector()
 	image.update_similar_media()
 	
+	res = False
 	try:
 		res, has_j3m = image.pull_metadata()
 	except Exception as e:
